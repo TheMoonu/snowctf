@@ -1,0 +1,100 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block head_title %}{{competition.title }} - {{ ranking_title }}{% endblock %}
+{% block base_content %}
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="javascript:history.back()" class="ctf-back-btn">
+            <i class="fa fa-arrow-left"></i>
+            <span class="ml-1">返回</span>
+        </a>
+    </div>
+    <div class="ctf-ranking-card border-0 rounded-6 mb-md-3 shadow-sm">
+        <div class="ctf-ranking-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 ctf-ranking-title">{{ competition.title }} - {{ ranking_title }}</h5>
+                <div class="ctf-tab-group">
+                    <a href="{% url 'public:rankings' competition.id 'individual' %}" 
+                       class="ctf-tab-btn {% if ranking_type == 'individual' %}ctf-tab-active{% endif %}">
+                        <i class="fa fa-user mr-1"></i>个人排行
+                    </a>
+                    <a href="{% url 'public:rankings' competition.id 'team' %}" 
+                       class="ctf-tab-btn {% if ranking_type == 'team' %}ctf-tab-active{% endif %}">
+                        <i class="fa fa-users mr-1"></i>队伍排行
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="ctf-ranking-body">
+            <div class="table-responsive">
+                <table class="ctf-ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="ctf-rank-col">排名</th>
+                            {% if is_individual %}
+                                <th class="ctf-user-col">选手</th>
+                                <th class="ctf-team-col">所属队伍</th>
+                            {% else %}
+                                <th class="ctf-team-col">队伍</th>
+                            {% endif %}
+                            <th class="ctf-score-col">解题数</th>
+                            <th class="ctf-score-col">得分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rank in rankings %}
+                        <tr>
+                            <td class="ctf-rank-col">
+                                {% if forloop.counter <= 3 %}
+                                    <span class="ctf-rank-badge ctf-rank-{{ forloop.counter }}">{{ forloop.counter }}</span>
+                                {% else %}
+                                    <span class="ctf-rank-number">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </td>
+                            {% if is_individual %}
+                                <td class="ctf-user-col">
+                                    <div class="ctf-user-info">
+                                        {% if rank.user.avatar %}
+                                            <img src="{{ rank.user.avatar.url }}" class="ctf-user-avatar" alt="{{ rank.user.username }}">
+                                        {% else %}
+                                            <div class="ctf-user-avatar-placeholder">
+                                                <i class="fa fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="ctf-user-name text-truncate" title="{{ rank.user.username }}">{{ rank.user.username }}</span>
+                                    </div>
+                                </td>
+                                <td class="ctf-team-col">
+                                    <span class="ctf-team-name text-truncate" title="{{ rank.team.name|default:'-' }}">
+                                        {{ rank.team.name|default:'-' }}
+                                    </span>
+                                </td>
+                                <td class="ctf-score-col ctf-solved-count">{{ rank.solved_challenges.count }}</td>
+                                <td class="ctf-score-col ctf-points">{{ rank.points }}</td>
+                            {% else %}
+                                <td class="ctf-team-col">
+                                    <span class="ctf-team-name text-truncate" title="{{ rank.team.name }}">
+                                        {{ rank.team.name }}
+                                    </span>
+                                </td>
+                                <td class="ctf-score-col ctf-solved-count">{{ rank.solved_challenges.count }}</td>
+                                <td class="ctf-score-col ctf-points">{{ rank.score }}</td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="ctf-empty-message">暂无排名数据</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 排行榜卡片样式 */
+
+</style>
+{% endblock %}

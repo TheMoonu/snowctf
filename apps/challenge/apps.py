@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class ChallengeConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'challenge'
+    verbose_name = '题目管理'

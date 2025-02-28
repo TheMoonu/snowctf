@@ -1,0 +1,220 @@
+{% extends "public/base.html" %}
+{% load static %}
+{% load blog_tags %}
+{% load humanize %}
+{% load ctf_tags %}
+{% block head_title %}竞赛中心{% endblock %}
+{% block metas %}
+<meta name="description" content="{{ site_description }}">
+<meta name="keywords" content="{{ site_keywords }}">
+{% endblock %}
+
+{% block top-file %}
+<link href="{% static 'public/css/ctf.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block base_content %}
+<div class="container">
+    <div class="col-10 mx-auto">
+        <div>
+            <div class="border-0 rounded-6 px-3 mb-md-3 order-1">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-md-4">
+                        <strong><i class="bi bi-sliders2 mr-2 f-17"></i>竞赛矩阵</strong>
+                    </div>
+                    <div class="col-md-5 d-flex justify-content-end">
+                        <form class="w-100" method="get" action="" id="search-form">
+                            <div class="form-group mb-0">
+                                <input type="text" class="form-control rounded-6" id="searchInput" name="q"
+                                    value="{{ search_query }}" placeholder="Search" aria-label="搜索" autocomplete="off"
+                                    required>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 rounded-6 mb-md-3">
+            <div class="card-body p-3">
+                <ul class="list-unstyled m-0">
+                    <li class="mb-3">
+                        <div class="d-flex align-items-center overflow-auto">
+                            <h6 class="mr-3 mb-0 font-weight-bold f-16"><i class="bi bi-stars mr-1"></i>状态</h6>
+                            <a href="#" data-filter="status" data-value="all"
+                                class="mr-4 flex-shrink-0 {% if not request.GET.status %}active-type {% endif %}"
+                                data-no-loading>ALL</a>
+                            <a href="#" data-filter="status" data-value="upcoming"
+                                class="mr-4 flex-shrink-0 {% if request.GET.status == 'upcoming' %}active-type {% endif %}"
+                                data-no-loading>未开始</a>
+                            <a href="#" data-filter="status" data-value="ongoing"
+                                class="mr-4 flex-shrink-0 {% if request.GET.status == 'ongoing' %}active-type {% endif %}"
+                                data-no-loading>进行中</a>
+                            <a href="#" data-filter="status" data-value="ended"
+                                class="mr-4 flex-shrink-0 {% if request.GET.status == 'ended' %}active-type {% endif %}"
+                                data-no-loading>已结束</a>
+                        </div>
+                    </li>
+                    <li class="mb-0 {% if user.is_authenticated %}mb-3{% endif %}">
+                        <div class="d-flex align-items-center overflow-auto">
+                            <h6 class="mr-3 mb-0 font-weight-bold f-16"><i class="bi bi-stack mr-1"></i>类型</h6>
+                            <a href="#" data-filter="type" data-value="all"
+                                class="mr-4 flex-shrink-0 {% if not request.GET.type %}active-type {% endif %}"
+                                data-no-loading>ALL</a>
+                            <a href="#" data-filter="type" data-value="individual"
+                                class="mr-4 flex-shrink-0 {% if request.GET.type == 'individual' %}active-type {% endif %}"
+                                data-no-loading>个人赛</a>
+                            <a href="#" data-filter="type" data-value="team"
+                                class="mr-4 flex-shrink-0 {% if request.GET.type == 'team' %}active-type {% endif %}"
+                                data-no-loading>团体赛</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            {% for competition in competitions %}
+            <div class="card border-0 rounded-6 mb-md-3 mt-2 challenge-card">
+                <div class="card-body">
+                    {% if competition.start_time > now %}
+                    <div class="position-absolute"
+                        style="top: 0; right: 0; width: 50px; height: 50px; background-color: #ffc107; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                        <span style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">未开始</span>
+                    </div>
+                    {% elif competition.end_time < now %} <div class="position-absolute"
+                        style="top: 0; right: 0; width: 50px; height: 50px; background-color: #dc3545; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                        <span style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">已结束</span>
+                </div>
+                {% else %}
+                <div class="position-absolute"
+                    style="top: 0; right: 0; width: 50px; height: 50px; background-color: #007bff; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                    <span style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">进行中</span>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <!-- 左侧图片 -->
+                    <div class="col-md-3">
+                        <img class="w-100 rounded-6" src="{{ competition.img_link.url }}" alt="{{ competition.title }}">
+                    </div>
+
+                    <!-- 右侧内容 -->
+                    <div class="col-md-9">
+                        <h2 class="mt-0 font-weight-bold text-info f-17">
+                            <a href="{% url 'public:competition_detail' competition.slug %}">{{competition.title}}</a>
+                        </h2>
+                        <p class="d-none d-sm-block mb-3 f-15">{{ competition.description|my_slice:':100' }}</p>
+
+                        <!-- 在比赛描述下方添加比赛信息卡片 -->
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-calendar-event text-primary mr-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">开始时间</small>
+                                                <strong>{{ competition.start_time|date:"Y-m-d H:i" }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-calendar-check text-danger mr-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">结束时间</small>
+                                                <strong>{{ competition.end_time|date:"Y-m-d H:i" }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-people text-success mr-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">比赛类型</small>
+                                                <strong>{{ competition.get_competition_type_display }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card border-0 rounded-6">
+            <div class="card-body">
+                <p class="mb-0">没有找到符合条件的赛事。</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+            <div class="page-inner text-center">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.difficulty %}&difficulty={{ request.GET.difficulty }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}">
+                        <span class="n">上一页</span>
+                    </a>
+                {% endif %}
+                
+                {% for page in paginator.page_range %}
+                    {% if page_obj.number == page %}
+                        <span class="page-active">{{ page }}</span>
+                    {% elif page == "..." %}
+                        <span class="mx-0" style="background: none;width:1rem">{{ page }}</span>
+                    {% else %}
+                        <a href="?page={{ page }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.difficulty %}&difficulty={{ request.GET.difficulty }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}">
+                            <span>{{ page }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.difficulty %}&difficulty={{ request.GET.difficulty }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}">
+                        <span class="n">下一页</span>
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block end_file %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterLinks = document.querySelectorAll('[data-filter]');
+
+        filterLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const filterType = this.getAttribute('data-filter');
+                const filterValue = this.getAttribute('data-value');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set(filterType, filterValue);
+
+                const newUrl = window.location.pathname + '?' + urlParams.toString();
+                window.location.href = newUrl;
+            });
+        });
+    });
+</script>
+{% endblock %}

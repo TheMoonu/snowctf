@@ -1,0 +1,170 @@
+{% extends 'public/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block metas %}
+    <meta name="description" content="用户账号管理，使用django-allauth社交用户系统，支持微博、Github等社交账号登录，加入{{ site_end_title }}，查看更多信息。">
+    <meta name="keywords" content="django-allauth,社交用户系统,OAuth 2.0">
+{% endblock %}
+
+{% block top-file %}
+<link href="{% static 'public/css/account.css' %}?v=20171229.01966" rel="stylesheet">
+{% endblock %}
+
+{% block head_title%}个人信息修改{% endblock%}
+
+{% block base_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-8 col-md-6 offset-sm-2 offset-md-3 px-xl-5">
+            <div class="card px-3 px-lg-4">
+                <div class="card-header text-center bg-white py-2"><h3 class="my-1 text-primary">修改资料</h3></div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" class="profile-form">
+                        {% csrf_token %}
+                        
+                        <!-- 头像上传 -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">
+                                头像
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <img src="{{ user.avatar.url }}" class="rounded-circle" id="avatar-preview"  
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
+                            </div>
+                            <div class="avatar-upload mt-4">
+                                <label for="id_avatar" class="btn btn-outline-primary btn-sm">
+                                    更换头像
+                                </label>
+                                <input type="file" name="avatar" id="id_avatar" class="d-none" accept="image/*">
+                                <span id="upload-tip" class="text-success ms-2" style="display: none;">
+                                    <i class="bi bi-check-circle"></i> 头像已选择，提交表单后生效
+                                </span>
+                                <div id="avatar-error" class="invalid-feedback" style="display: none;">
+                                    请选择头像文件
+                                </div>
+                                <div class="form-text mt-1">支持jpg、png、gif格式，文件小于10MB</div>
+                            </div>
+                        </div>
+                    
+                        <!-- 个人网址 -->
+                        <div class="form-group mb-4">
+                            <label for="id_link" class="form-label">个人网址</label>
+                            <input type="url" name="link" class="form-control" id="id_link" 
+                                   value="{{ form.link.value|default:'' }}"
+                                   placeholder="请输入以http开头的完整网址">
+                            {% if form.link.errors %}
+                            <div class="invalid-feedback d-block">{{ form.link.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">{{ form.link.help_text }}</div>
+                        </div>
+                    
+                        <!-- 个人简介 -->
+                        <div class="form-group mb-4">
+                            <label for="id_profile" class="form-label">个人简介</label>
+                            <textarea name="profile" class="form-control" id="id_profile" 
+                                      rows="4" placeholder="写点什么介绍一下自己吧...（100字以内）">{{ form.profile.value|default:'' }}</textarea>
+                            {% if form.profile.errors %}
+                            <div class="invalid-feedback d-block">{{ form.profile.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">保存修改</button>
+                        </div>
+                    </form>
+                    
+                    
+                </div>
+                <div class="text-center mb-5" id="social-login">
+                    <div class="login-title"><span>更多操作</span></div>
+                    <div class="more-link mt-3">
+                        <a class="btn btn-primary btn-sm mx-3" href="{% url 'oauth:profile' %}">查看资料</a>
+                        <a class="btn btn-primary btn-sm mx-3" href="{% url 'account_change_password' %}">修改密码</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .profile-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+    
+    .form-text {
+        font-size: 0.875em;
+        color: #6c757d;
+    }
+    </style>
+    
+    <script>
+    // 表单提交验证
+    document.querySelector('form').onsubmit = function(e) {
+        const avatarInput = document.getElementById('id_avatar');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarError = document.getElementById('avatar-error');
+        
+        // 只有在使用默认头像且没有选择新头像时才阻止提交
+        if (avatarPreview.src.includes('default.png') && !avatarInput.files.length) {
+            e.preventDefault();
+            avatarError.style.display = 'block';
+            avatarInput.focus();
+            return false;
+        }
+        
+        // 其他情况（已有头像或选择了新头像）允许提交
+        avatarError.style.display = 'none';
+        return true;
+    };
+    
+    // 文件选择处理
+    document.getElementById('id_avatar').onchange = function(e) {
+        const file = this.files[0];
+        const tipElement = document.getElementById('upload-tip');
+        const previewElement = document.getElementById('avatar-preview');
+        const errorElement = document.getElementById('avatar-error');
+        
+        if (file) {
+            // 检查文件大小（10MB）
+            if (file.size > 10 * 1024 * 1024) {
+                alert('文件大小不能超过10MB');
+                this.value = '';
+                tipElement.style.display = 'none';
+                errorElement.style.display = 'block';
+                return;
+            }
+    
+            // 预览图片
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewElement.src = e.target.result;
+                tipElement.style.display = 'inline';
+                errorElement.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            tipElement.style.display = 'none';
+            // 如果是默认头像，显示错误信息
+            if (previewElement.src.includes('default.png')) {
+                errorElement.style.display = 'block';
+            }
+        }
+    };
+    </script>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,356 @@
+/*
+背景色：#22303f
+卡片色：#18222d
+深色卡片色：#001d25
+字体色：#9caec7
+字体暗色：#738292
+字体亮色：#ccc
+*/
+
+/* 通用 */
+blockquote {
+    background: #001d25;
+}
+
+.fa-github {
+    color: #fff;
+}
+
+.text-muted {
+    color: #738292 !important;
+}
+
+.text-secondary {
+    color: #738292;
+}
+
+.card,
+.card-header,
+.list-group-item,
+.card-footer {
+    background-color: #18222d !important;
+}
+
+.dropdown-menu {
+    background: #18222d;
+}
+
+.dropdown-item {
+    color: #9caec7;
+}
+
+.dropdown-item:focus, .dropdown-item:hover {
+    color: #9caec7;
+    background: #001d25;
+}
+
+.breadcrumb {
+    background-color: #18222d !important;
+}
+
+.breadcrumb-item.active {
+    color: #738292;
+}
+
+.form-control {
+    background: #18222d;
+    color: #9caec7;
+    border: 1px solid #738292;
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+    color: #9caec7;
+    background-color: #18222d;
+    border-color: #738292 #738292 #18222d;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #738292;
+}
+
+.table {
+    color: #9caec7;
+}
+
+.table .thead-light th {
+    color: #ccc;
+    background-color: #22303f;
+}
+
+.codehilite {
+    background: #292b30;
+    border-radius: 8px;
+}
+
+.description {
+    background: #18222d !important;
+}
+
+#home-card,
+#category-card,
+#tag-card,
+#friends-card,
+#article-view-card {
+    background: #2b2b2b;
+}
+
+#home-card .card-header strong,
+#tag-card .card-header strong,
+#category-card .card-header strong,
+.tool-cate .card-header strong,
+.description strong,
+#friends-card .card-header strong,
+#article-view-card .card-header strong {
+    border-bottom: 2px solid #9caec7;
+}
+
+#home-card .card-header,
+#tag-card .card-header,
+.description h1,
+#category-card .card-header,
+#friends-card .card-header,
+#article-view-card .card-header {
+    border-bottom: 2px solid #001d25;
+}
+
+
+/* 导航 */
+#site-logo-name,
+#site-logo-name:hover,
+#site-logo-name:active {
+    color: #ccc;
+}
+
+.blog-navbar {
+    background: #18222d !important;
+}
+
+.summary-list .article-block {
+    background-color: #18222d;
+}
+
+.choice .active {
+    color: #9caec7;
+    border-bottom: 2px solid #9caec7;
+}
+
+.category-item:before {
+    border-color: #18222d #18222d #18222d #9caec7;
+}
+
+/*footer*/
+footer {
+    background: #18222d;
+    color: #9caec7;
+}
+
+/* tool */
+.tool-list a:hover,
+.tool-list .card-title:hover {
+    color: #ccc;
+}
+
+.tool-list .card-header {
+    color: #FFFFFF;
+}
+
+.tool-cate .card-header {
+    border-bottom: 2px solid #001d25;
+}
+
+pre {
+    background: #292b30;
+    color: #9caec7;
+    border-radius: 8px;
+}
+
+#html-cha .table {
+    background: #18222d !important;
+}
+
+#html-cha .table th {
+    color: #fff;
+}
+
+/* notification */
+.cbp_tmtimeline > li:nth-child(odd) .cbp_tmlabel,
+.cbp_tmtimeline > li .cbp_tmlabel {
+    background: #18222d;
+    color: #9caec7;
+}
+
+#notes-main .active {
+    background-color: #17a2b8 !important;
+}
+
+#notes-main .list-group-item {
+    border: 1px solid #9caec7;
+}
+
+.cbp_tmtimeline > li .cbp_tmlabel:after,
+.cbp_tmtimeline > li:nth-child(odd) .cbp_tmlabel:after {
+    border-right-color: #18222d;
+}
+
+/* detail */
+.article-body h2 {
+    background: #001d25;
+}
+
+.editor-btns .btn {
+    background: #18222d;
+}
+
+.CodeMirror {
+    color: #333;
+}
+
+.editor-toolbar a {
+    color: #9caec7 !important;
+}
+
+/* Timeline */
+.timeline-panel {
+    background: #18222d;
+}
+
+.timeline > li > .timeline-panel:after {
+    border-left: 14px solid #18222d;
+    border-right: 0 solid #18222d;
+}
+
+.timeline > li > .timeline-panel:before {
+    border-left: 15px solid #fff;
+    border-right: 0 solid #fff;
+}
+
+.subject-list a,
+.subject-list .toc-title,
+.subcategory-title,
+.subject-subcategory .caret,
+.toc a {
+    color: #9caec7;
+}
+
+
+.toc a:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.subject-list,
+.article-toc {
+    background: #18222d;
+}
+
+.subject-list a:hover {
+    color: #ea6f5a;
+}
+
+#no-editor {
+    background-color: #18222d;
+}
+
+.blog-info-list .badge {
+    color: #333;
+}
+
+/*全局样式参数start*/
+.dark-theme, body {
+    --izone-layer-golden-1: rgba(209, 171, 97, 0.23);
+    --izone-layer-golden-2: rgba(237, 211, 167, 0.4);
+    --izone-component-hover: hsla(0, 0%, 100%, 0.2);
+    --izone-gradientgold_normal_start: #fde8c3;
+    --izone-gradientgold_normal_end: #edd3a7;
+    --izone-gradientgold_hover_start: #f1dfc0;
+    --izone-gradientgold_hover_end: #e6c99b;
+    --izone-gradientgold_click_start: #e9d5b3;
+    --izone-gradientgold_click_end: #dac29a;
+    --izone-layer_loading_start: hsla(0, 0%, 100%, 0);
+    --izone-layer_loading_end: hsla(0, 0%, 100%, 0.2);
+    --izone-layer_golden_2: rgba(209, 171, 97, 0.12);
+    --izone-font_golden_4: #7e5d25;
+    --izone-font-golden-1: #edd3a7;
+    --izone-font-golden-2: #bea985;
+    --izone-font-golden-3: #8e7f64;
+    --izone-gray-0: #000;
+    --izone-gray-1-1: hsla(0, 0%, 100%, 0.2);
+    --izone-gray-1-2: hsla(0, 0%, 100%, 0.1);
+    --izone-gray-1-3: #464646;
+    --izone-gray-2: hsla(0, 0%, 100%, 0.12);
+    --izone-gray-3: hsla(0, 0%, 100%, 0.08);
+    --izone-background: #22303f;
+    --izone-layer-1: #181818;
+    --izone-layer-2-1: hsla(0, 0%, 100%, 0.08);
+    --izone-layer-2-2: hsla(0, 0%, 100%, 0.08);
+    --izone-layer-3-fill: hsla(0, 0%, 100%, 0.08);
+    --izone-layer-3-border: hsla(0, 0%, 100%, 0.2);
+    --izone-layer-4-dropdown: #2f2f2f;
+    --izone-layer-5: hsla(0, 0%, 100%, 0.12);
+    --izone-brand-1-normal: #1b73e5;
+    --izone-brand-2-hover: #0f66d6;
+    --izone-brand-3-click: #0056c7;
+    --izone-brand-4-disable: rgba(41, 134, 255, 0.4);
+    --izone-brand-5-light: rgba(30, 128, 255, 0.2);
+    --izone-mask-1: hsla(0, 0%, 100%, 0.4);
+    --izone-mask-2: #282828;
+    --izone-mask-3: rgba(0, 0, 0, 0.05);
+    --izone-brand-fill1-normal: rgba(41, 134, 255, 0.15);
+    --izone-brand-fill2-hover: rgba(20, 115, 237, 0.25);
+    --izone-brand-fill3-click: rgba(5, 99, 221, 0.35);
+    --izone-brand-stroke1-normal: rgba(41, 134, 255, 0.4);
+    --izone-brand-stroke2-hover: rgba(20, 115, 237, 0.6);
+    --izone-brand-stroke3-click: rgba(5, 99, 221, 0.6);
+    --izone-font_danger: #f85959;
+    --izone-font-default: hsla(0, 0%, 100%, 0.7);
+    --izone-font-1: hsla(0, 0%, 100%, 0.8);
+    --izone-font-2: hsla(0, 0%, 100%, 0.7);
+    --izone-font-3: hsla(0, 0%, 100%, 0.46);
+    --izone-font-4: hsla(0, 0%, 100%, 0.45);
+    --izone-font-brand1-normal: #4495ff;
+    --izone-font-brand2-hover: #2b88ff;
+    --izone-font-brand3-click: #1371ec;
+    --izone-font-brand4-disable: rgba(19, 113, 236, 0.4);
+    --izone-font-success: #40c17b;
+    --izone-font-warning: #ff8541;
+    --izone-font-danger: #c62633;
+    --izone-font-white-disable: hsla(0, 0%, 100%, 0.6);
+    --izone-font-white: #b4b3b3;
+    --izone-success-1-normal: #40c17b;
+    --izone-success-2-deep: #008445;
+    --izone-success-3-light: rgba(64, 193, 123, 0.2);
+    --izone-warning-1-normal: #ff8541;
+    --izone-warning-2-deep: #d85c02;
+    --izone-warning-3-light: rgba(255, 133, 65, 0.2);
+    --izone-danger-1-normal: #f85959;
+    --izone-danger-2-deep: #c62633;
+    --izone-danger-3-light: rgba(248, 89, 89, 0.2);
+    --izone-sub-1-purple: #a965ff;
+    --izone-sub-2-blue: #68a9ff;
+    --izone-sub-3-cyan: #74f4ed;
+    --izone-sub-4-green: #50e68c;
+    --izone-sub-5-yellow: #ffd748;
+    --izone-sub-6-orange: #ff8f60;
+    --izone-sub-7-red: #ff6e65;
+    --izone-coupon_1_button: rgba(251, 86, 83, 0.8);
+    --izone-coupon_1_button_disable: #782928;
+    --izone-coupon_2_card: rgba(255, 176, 176, 0.08);
+    --izone-coupon_3_stroke: rgba(246, 66, 66, 0.18);
+    --izone-navigation: #181818;
+    --izone-shade-1: rgba(0, 0, 0, 0.6);
+    --izone-shade-2: rgba(0, 0, 0, 0.7);
+    --izone-popup: #282828;
+    --izone-popover: #424242;
+    --izone-sheets: #222;
+    --izone-coupon-button: rgba(251, 86, 83, 0.8);
+    --izone-coupon-button-disable: #782928;
+    --izone-coupon-card: rgba(255, 176, 176, 0.08);
+    --izone-layer-loading-start: hsla(0, 0%, 100%, 0);
+    --izone-layer-loading-end: hsla(0, 0%, 100%, 0.2);
+    --izone-font-priv-hint: #916be1;
+    --izone-background-jscore-radar: #232323;
+    --izone-background-container: #18222d;
+}
+
+/*全局样式参数end*/
+

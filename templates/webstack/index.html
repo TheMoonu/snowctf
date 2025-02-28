@@ -1,0 +1,68 @@
+{% extends 'webstack/base.html' %}
+{% load static %}
+
+{% block title %}程序员网址导航_SECSNOW{% endblock %}
+
+{% block meta %}
+    <link rel="shortcut icon" href="{% static 'blog/img/favicon.ico' %}" type="image/x-icon"/>
+    <meta name="keywords" content="程序员导航,程序员资源网站,开发者导航,前端导航,设计师导航,站长导航,网址收藏,www.secsnow.com">
+    <meta name="description" content="致力于收录程序员常用优质网站，帮助广大程序员和编程开发者更轻松的找到自己喜欢或者需要的工具、项目以及网站">
+{% endblock %}
+
+{% block top-file %}
+    <style>
+        @media (max-width: 576px) {
+            .page-container .main-content {
+                padding: 10px;
+            }
+
+            .user-info-navbar .user-info-menu {
+                padding: 0 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .page-container .main-content {
+                padding: 30px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block logo %}
+    <div class="logo">
+        <a href="{% url 'webstack:webstack_index' %}" class="logo-expanded">
+            <img src="{% static 'blog/img/nav-logo.png' %}" height="40" alt=""/>
+        </a>
+        <a href="{% url 'webstack:webstack_index' %}" class="logo-collapsed">
+            <img src="{% static 'webstack/assets/images/logo-collapsed@2x.png' %}" height="40" alt=""/>
+        </a>
+    </div>
+{% endblock %}
+
+{% block navbar-list %}
+    <li style="min-height: 75px;"><a href="{% url 'blog:index' %}">
+        <i class="fa fa-home" style="margin-right: .5rem;"></i>博客首页</a></li>
+    <li style="min-height: 75px;"><a href="{% url 'blog:subject_index' %}">
+        <i class="fa fa-cubes" style="margin-right: .5rem;"></i>博客专题</a></li>
+    <li style="min-height: 75px;"><a href="{% url 'tool:total' %}">
+        <i class="fa fa-balance-scale" style="margin-right: .5rem;"></i>在线工具</a></li>
+    <li style="min-height: 75px;"><a href="{% url 'blog:about' %}">
+        <i class="fa fa-leaf" style="margin-right: .5rem;"></i>关于</a></li>
+{% endblock %}
+
+{% block main-menu %}{% endblock %}
+
+{% block footer %}
+    <div class="footer-text">
+        &copy; {{ this_year }}
+        <a href="https://www.secsnow.cn/">
+            <strong>django-webstack</strong>
+        </a>
+        design by
+        <a href="https://www.secsnow.cn/" target="_blank">
+            <strong>secsnow</strong>
+        </a>
+        <a href="{% url 'blog:friend' %}" style="margin-left: 1rem;">友情链接</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% load blog_tags static %}
+
+{% load ctf_tags %}
+{% load humanize %}
+<!--个人空间-->
+<div class="card border-0 rounded-6 px-3 mb-2 mb-md-3 d-none d-lg-block" id="home-card">
+    <div class="card-header bg-none px-0">
+        <strong><i class="fa fa-flag mr-2 f-17"></i>CTF空间</strong>
+    </div>
+    <div class="card-body px-0 pt-3 pb-1">
+        <div class="row text-center">
+            <div class="col">
+
+               
+                <a href="" title="网站源码">
+                    <img style="max-width:40px" alt="网站源码" src="{% static 'public/img/github.png' %}">
+                    <p class="mt-2">网站源码</p>
+                </a>
+
+              
+            </div>
+            <div class="col">
+                <a href="" target="_blank" title="查看解题记录">
+                    <img style="max-width:40px" alt="解题记录" src="{% static 'public/img/blog.png' %}">
+                    <p class="mt-2">解题记录</p>
+                </a>
+            </div>
+            <div class="col">
+                <a href="{% url 'public:competition_dashboard' competition.slug %}" target="_blank" title="实时数据">
+                    <img style="max-width:40px" alt="实时数据" src="{% static 'public/img/wpzx.png' %}">
+                    <p class="mt-2">实时数据</p>
+                </a>
+            </div>
+        </div>
+        {% get_user_ctf_stats user competition as stats %}
+        <div class="row text-center blog-info-list">
+            <div class="col">
+                <div>
+                    <p class="mt-1 badge">{{ stats.solved_count }}</p>
+                    <p class="mt-1">解题</p>
+                </div>
+            </div>
+            <div class="col">
+                <div>
+                    <p class="mt-1 badge">{{ stats.user_points }}</p>
+                    <p class="mt-1">分数</p>
+                </div>
+            </div>
+            <div class="col">
+                <div>
+                    <p class="mt-1 badge">{{ stats.team_score }}</p>
+                    <p class="mt-1">团分</p>
+                </div>
+            </div>
+            <div class="col">
+                <div>
+                    <p class="mt-1 badge">{{ stats.team_rank }}</p>
+                    <p class="mt-1">团排</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if challenge.uuid %}
+{% get_challenge_solve_records challenge limit=10 as recent_solves %}
+<div class="card border-0 rounded-6 px-3 mb-2 mb-md-3" id="article-view-card">
+    
+    <div id="solveRecordsCarousel" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            {% for record in recent_solves %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="py-2">
+                        <div class="d-flex align-items-center">
+                            <!-- 用户名带截断 -->
+                            <span class="text-primary text-truncate" style="max-width: 120px;" title="{{ record.user.user }}">
+                                {{ record.user.user }}
+                            </span>
+                            <!-- 使用自定义时间过滤器 -->
+                            <span class="text-primary ml-1 flex-shrink-0">
+                                &nbsp;{{ record.solved_at|compact_time }}解出了该题目
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="carousel-item active">
+                    <div class="py-2">
+                        <div style="text-align: center;">暂无解题记录</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% show_competition_countdown competition %}
+
+
+
+{# 个人排行 #}
+{% get_users_ranked_by_solves competition=competition as top_users %}
+<div class="card border-0 rounded-6 px-3 mb-2 mb-md-3">
+    <div class="card-header bg-none px-0 d-flex justify-content-between align-items-center">
+        <strong><i class="fa fa-user-circle mr-2 f-17"></i>个人排行</strong>
+        <a href="{% url 'public:rankings' competition.id 'individual' %}" class="more-link">
+            更多<i class="fa fa-angle-right ml-1"></i>
+        </a>
+    </div>
+    
+    <ul class="article-view-list list-group list-group-flush f-14">
+        {% for user in top_users %}
+        <li class="py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                    
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar }}" alt="{{ user.user }}" class="rounded-circle mr-2 flex-shrink-0" style="width: 20px; height: 20px; object-fit: cover;">
+                    {% endif %}
+                    <div class="user-info d-flex align-items-center overflow-hidden">
+                        <span class="text-truncate" style="max-width: 80px;" data-toggle="tooltip" data-placement="top" title="{{ user.user }}">{{ user.user }}</span>
+                        {% if user.team %}
+                            <span class="text-muted mx-2 flex-shrink-0">|</span>
+                            <span class="text-muted text-truncate" style="max-width: 80px;" data-toggle="tooltip" data-placement="top" title="{{ user.team }}">{{ user.team }}</span>
+                        {% endif %}
+                        <span class="text-muted mx-2 flex-shrink-0">|</span>
+                        <span class="text-muted flex-shrink-0">解题: {{ user.solved_count }}</span>
+                    </div>
+                </div>
+                <div class="score ml-3 flex-shrink-0">{{ user.score }}</div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<style>
+    .rank-number {
+        min-width: 20px;
+        text-align: center;
+        font-weight: 600;
+        color: #666;
+    }
+    
+    .user-info {
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .user-info a {
+        font-weight: 500;
+    }
+    
+    .score {
+        font-weight: 600;
+        color: #007bff;
+        min-width: 40px;
+        text-align: right;
+    }
+    
+    .article-view-list li {
+        border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+    
+    .article-view-list li:last-child {
+        border-bottom: none;
+    }
+    
+    @media (max-width: 340px) {
+        .user-info {
+            font-size: 12px;
+        }
+        .mx-2 {
+            margin-left: 0.3rem !important;
+            margin-right: 0.3rem !important;
+        }
+    }
+    .more-link {
+    font-size: 13px;
+    color: #007bff;
+    text-decoration: none;
+    margin-left: auto; /* 确保靠右对齐 */
+    display: flex;
+    align-items: center;
+}
+
+.more-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.more-link i {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.more-link:hover i {
+    transform: translateX(2px);
+}
+    </style>
+
+{# 队伍排行 #}
+{% if competition.competition_type == 'team' %}
+{% get_teams_ranked_by_solves competition=competition as top_teams %}
+<div class="card border-0 rounded-6 px-3 mb-2 mb-md-3">
+    <div class="card-header bg-none px-0 d-flex justify-content-between align-items-center">
+        <strong><i class="fa fa-users mr-2 f-17"></i>队伍排行</strong>
+        <a href="{% url 'public:rankings' competition.id 'team' %}" class="more-link">
+            更多<i class="fa fa-angle-right ml-1"></i>
+        </a>
+    </div>
+    <ul class="article-view-list list-group list-group-flush f-14">
+        {% for team in top_teams %}
+        <li class="py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                    <div class="team-info d-flex align-items-center overflow-hidden">
+                        <span class="text-truncate" style="max-width: 120px;" data-toggle="tooltip" data-placement="top" title="{{ team.team_name }}">{{ team.team_name }}</span>
+                        <span class="text-muted mx-2 flex-shrink-0">|</span>
+                        <span class="text-muted flex-shrink-0">解题: {{ team.solved_count }}</span>
+                    </div>
+                </div>
+                <div class="score ml-3 flex-shrink-0">{{ team.score }}</div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<style>
+    /* 添加到现有样式中 */
+    .team-info {
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style> 
+{% endif %}  
+

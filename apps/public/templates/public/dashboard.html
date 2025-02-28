@@ -1,0 +1,643 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="shortcut icon" href="{% static 'public/img/favicon.ico' %}" type="image/x-icon"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ competition.title }} - 实时数据大屏</title>
+
+    <style>
+       * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #001324;
+    color: #fff;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.ctf-screen {
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.ctf-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(0, 255, 255, 0.1) 25%,
+            rgba(0, 255, 255, 0.1) 75%,
+            transparent 100%);
+}
+
+.ctf-header {
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.ctf-title {
+    font-size: 28px;
+    color: #0ff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    position: relative;
+    display: inline-block;
+}
+
+.ctf-title::before,
+.ctf-title::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0ff);
+}
+
+.ctf-title::before {
+    right: 100%;
+    margin-right: 20px;
+}
+
+.ctf-title::after {
+    left: 100%;
+    margin-left: 20px;
+    transform: rotate(180deg);
+}
+
+.ctf-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    height: calc(100vh - 160px);
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+.ctf-card {
+    background: rgba(0, 30, 60, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 10px;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.ctf-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #0ff;
+    border-left: 2px solid #0ff;
+}
+
+.ctf-card::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    border-bottom: 2px solid #0ff;
+    border-right: 2px solid #0ff;
+}
+
+.ctf-stats {
+    grid-column: span 3;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+.ctf-stat-item {
+    text-align: center;
+    position: relative;
+    padding: 10px 20px;
+}
+
+.ctf-stat-value {
+    font-size: 28px;
+    color: #0ff;
+    font-weight: bold;
+    margin: 5px 0;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.ctf-stat-label {
+    color: #7f9db9;
+    font-size: 14px;
+}
+
+.ctf-chart-title {
+    color: #0ff;
+    font-size: 16px;
+    margin-bottom: 15px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.ctf-chart-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 16px;
+    background: #0ff;
+    border-radius: 2px;
+}
+
+.ctf-chart {
+    height: calc(100% - 40px);
+    min-height: 200px;
+}
+
+.ctf-countdown {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 30, 60, 0.5);
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.ctf-countdown-label {
+    color: #7f9db9;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.ctf-countdown-value {
+    font-size: 24px;
+    color: #0ff;
+    font-family: monospace;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.ctf-recent-submissions {
+    height: calc(100% - 30px);
+    overflow-y: auto;
+}
+
+.ctf-submission-item {
+    padding: 8px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ctf-submission-success {
+    color: #52c41a;
+}
+
+.ctf-submission-wrong {
+    color: #ff4d4f;
+}
+
+.ctf-category-progress {
+    height: calc(100% - 30px);
+    overflow-y: auto;
+}
+
+.ctf-category-item {
+    margin-bottom: 12px;
+}
+
+.ctf-category-name {
+    color: #7f9db9;
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ctf-progress-bar {
+    height: 6px;
+    background: rgba(0, 30, 60, 0.5);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ctf-progress-value {
+    height: 100%;
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.fullscreen-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 30, 60, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    color: #0ff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.fullscreen-btn:hover {
+    background: rgba(0, 255, 255, 0.1);
+}
+
+.fullscreen-mode {
+    background: #001324;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    overflow: auto;
+    padding: 20px;
+}
+
+.fullscreen-mode .ctf-grid {
+    height: calc(100vh - 180px);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 30, 60, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(0, 30, 60, 0.5);
+}
+    </style>
+</head>
+
+<body>
+    <div class="ctf-screen" id="dashboard">
+        <button class="fullscreen-btn" id="fullscreen-toggle">
+            进入全屏
+        </button>
+        <div class="ctf-decoration"></div>
+        <div class="ctf-countdown">
+            <div class="ctf-countdown-label">比赛倒计时</div>
+            <div class="ctf-countdown-value" id="ctf-countdown"></div>
+        </div>
+
+        <header class="ctf-header">
+            <h1 class="ctf-title">{{ competition.title }} 实时数据监控</h1>
+        </header>
+
+        <div class="ctf-stats ctf-card">
+            <div class="ctf-stat-item">
+                <div class="ctf-stat-label">参赛队伍</div>
+                <div class="ctf-stat-value" id="ctf-participant-count">-</div>
+            </div>
+            <div class="ctf-stat-item">
+                <div class="ctf-stat-label">总提交次数</div>
+                <div class="ctf-stat-value" id="ctf-total-submissions">-</div>
+            </div>
+            <div class="ctf-stat-item">
+                <div class="ctf-stat-label">平均解题率</div>
+                <div class="ctf-stat-value" id="ctf-solved-rate">-</div>
+            </div>
+            <div class="ctf-stat-item">
+                <div class="ctf-stat-label">题目总数</div>
+                <div class="ctf-stat-value" id="ctf-total-challenges">-</div>
+            </div>
+        </div>
+
+        <div class="ctf-grid">
+            <!-- 左侧面板 -->
+            <div class="ctf-side-panel">
+                <div class="ctf-card" style="height: 100%;">
+                    <h3 class="ctf-chart-title">实时排行榜</h3>
+                    <div class="ctf-chart" id="ctf-leaderboard-chart"></div>
+                </div>
+            </div>
+
+            <!-- 中间面板 -->
+            <div class="ctf-main-panel">
+                <div class="ctf-card" style="height: 100%;">
+                    <h3 class="ctf-chart-title">团队解题实时记录</h3>
+                    <div class="ctf-chart" id="ctf-timeline-chart"></div>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="ctf-side-panel">
+                <div class="ctf-card" style="height: calc(50% - 10px);">
+                    <h3 class="ctf-chart-title">最近提交</h3>
+                    <div class="ctf-recent-submissions" id="ctf-recent-submissions"></div>
+                </div>
+                <div class="ctf-card" style="height: calc(50% - 10px);">
+                    <h3 class="ctf-chart-title">分类完成情况</h3>
+                    <div class="ctf-category-progress" id="ctf-category-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'public/js/echarts.min.js' %}"></script>
+    <script>
+        const charts = {
+            leaderboard: echarts.init(document.getElementById('ctf-leaderboard-chart')),
+            timeline: echarts.init(document.getElementById('ctf-timeline-chart'))
+        };
+
+        // 更新倒计时
+        function updateCountdown() {
+            const now = new Date();
+            const end = new Date('{{ competition.end_time|date:"Y-m-d H:i:s" }}');
+            const diff = end - now;
+
+            if (diff <= 0) {
+                document.getElementById('ctf-countdown').textContent = '比赛已结束';
+                return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('ctf-countdown').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateRecentSubmissions(submissions) {
+            const container = document.getElementById('ctf-recent-submissions');
+            container.innerHTML = submissions.map(sub => `
+                <div class="ctf-submission-item">
+                    <span class="ctf-submission-${sub.status}">${sub.team}</span>
+                    <span>${sub.challenge}</span>
+                    <span>${sub.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateCategoryProgress(categories) {
+            const container = document.getElementById('ctf-category-progress');
+            container.innerHTML = categories.map(cat => `
+                <div class="ctf-category-item">
+                    <div class="ctf-category-name">
+                        <span>${cat.category}</span>
+                        <span>${cat.solved}/${cat.total}</span>
+                    </div>
+                    <div class="ctf-progress-bar">
+                        <div class="ctf-progress-value" style="width: ${cat.percent}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDashboard() {
+            fetch(`/api/v1/competition/{{ competition.slug }}/dashboard-data/`)
+                .then(response => response.json())
+                .then(data => {
+                    // 更新统计数据
+                    document.getElementById('ctf-participant-count').textContent =
+                        data.stats.participant_count || '-';
+                    document.getElementById('ctf-total-submissions').textContent =
+                        data.stats.submission_count || '-';
+                    document.getElementById('ctf-solved-rate').textContent =
+                        `${(data.stats.solved_rate * 100).toFixed(1)}%` || '-';
+                    document.getElementById('ctf-total-challenges').textContent =
+                        data.stats.total_challenges || '-';
+
+                    // 更新最近提交
+                    updateRecentSubmissions(data.recent_submissions);
+
+                    // 更新分类进度
+                    updateCategoryProgress(data.category_stats);
+
+                    // 更新排行榜
+                    charts.leaderboard.setOption({
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        grid: {
+                            top: '5%',
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'value',
+                            axisLabel: { color: '#7f9db9' },
+                            axisLine: {
+                                show: true,
+                                lineStyle: { color: '#0c2544' }
+                            },
+                            splitLine: {
+                                lineStyle: { color: '#0c2544' }
+                            }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: data.leaderboard.map(item => item.name),
+                            axisLabel: { color: '#7f9db9' },
+                            axisLine: {
+                                show: true,
+                                lineStyle: { color: '#0c2544' }
+                            }
+                        },
+                        series: [{
+                            name: '得分',
+                            type: 'bar',
+                            data: data.leaderboard.map(item => item.score),
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                                    offset: 0,
+                                    color: '#00f2fe'
+                                }, {
+                                    offset: 1,
+                                    color: '#4facfe'
+                                }])
+                            }
+                        }]
+                    });
+                    console.log('Score trends data:', data.series_data);
+                    // 更新时间线图表
+                    charts.timeline.setOption({
+                        tooltip: {
+                            trigger: 'axis',
+                            formatter: function (params) {
+                                let result = params[0].axisValue + '<br/>';
+                                params.forEach(param => {
+                                    result += param.marker + param.seriesName + ': ' + param.value[1] + '分<br/>';
+                                });
+                                return result;
+                            },
+                            backgroundColor: 'rgba(0, 30, 60, 0.8)',
+                            borderColor: '#0ff',
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        legend: {
+                            data: data.series_data.map(item => item.name),
+                            textStyle: {
+                                color: '#7f9db9'
+                            },
+                            top: '5%',
+                            icon: 'roundRect',
+                            itemWidth: 12,
+                            itemHeight: 12,
+                            itemGap: 20
+                        },
+                        grid: {
+                            top: '15%',
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'time',
+                            axisLabel: {
+                                color: '#7f9db9',
+                                formatter: function (value) {
+                                    const date = new Date(value);
+                                    return date.getHours().toString().padStart(2, '0') + ':' +
+                                        date.getMinutes().toString().padStart(2, '0');
+                                }
+                            },
+                            axisLine: {
+                                show: true,
+                                lineStyle: { color: '#0c2544', width: 2 }
+                            },
+                            splitLine: {
+                                lineStyle: { color: '#0c2544', opacity: 0.3 }
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '累计分数',
+                            nameTextStyle: {
+                                color: '#7f9db9',
+                                padding: [0, 0, 0, 30]
+                            },
+                            axisLabel: { color: '#7f9db9' },
+                            axisLine: {
+                                show: true,
+                                lineStyle: { color: '#0c2544', width: 2 }
+                            },
+                            splitLine: {
+                                lineStyle: { color: '#0c2544', opacity: 0.3 }
+                            }
+                        },
+                        series: data.series_data,
+                    });
+                });
+        }
+
+        // 全屏控制
+        const dashboard = document.getElementById('dashboard');
+        const fullscreenBtn = document.getElementById('fullscreen-toggle');
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                // 进入全屏
+                if (dashboard.requestFullscreen) {
+                    dashboard.requestFullscreen();
+                } else if (dashboard.webkitRequestFullscreen) {
+                    dashboard.webkitRequestFullscreen();
+                } else if (dashboard.msRequestFullscreen) {
+                    dashboard.msRequestFullscreen();
+                }
+                fullscreenBtn.textContent = '退出全屏';
+                dashboard.classList.add('fullscreen-mode');
+            } else {
+                // 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                fullscreenBtn.textContent = '进入全屏';
+                dashboard.classList.remove('fullscreen-mode');
+            }
+        }
+
+        // 监听全屏变化
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.textContent = '进入全屏';
+                dashboard.classList.remove('fullscreen-mode');
+            }
+        });
+
+        // 添加全屏按钮点击事件
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+
+        // 在窗口大小改变时重新计算图表大小
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                setTimeout(() => {
+                    chart.resize();
+                }, 100);
+            });
+        });
+
+        // 在全屏切换时重新计算图表大小
+        document.addEventListener('fullscreenchange', () => {
+            Object.values(charts).forEach(chart => {
+                setTimeout(() => {
+                    chart.resize();
+                }, 100);
+            });
+        });
+
+        // 初始化
+        updateCountdown();
+        updateDashboard();
+
+        // 定时更新
+        setInterval(updateCountdown, 1000);
+        setInterval(updateDashboard, 30000);
+    </script>
+</body>
+
+</html>

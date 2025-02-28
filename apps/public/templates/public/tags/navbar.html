@@ -1,0 +1,109 @@
+{% load static oauth_tags comment_tags %}
+<style>
+
+.navbar-logo {
+    max-height: 30px;
+    width: auto;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo {
+        max-height: 40px;
+    }
+}
+
+.xuehua-site-title {
+    font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0184ff;  /* 直接使用纯色 */
+    letter-spacing: 1px;
+    margin-right: 2rem;
+}
+
+.xuehua-navbar-logo {
+    height: 40px;
+    width: auto;
+}
+
+#site-logo-name {
+    display: flex;
+    align-items: center;
+    margin-right: 0;
+}
+
+/* logo 相关样式 */
+.xuehua-navbar-logo {
+    height: 40px;
+    width: auto;
+}
+
+/* 确保整体布局正确 */
+#site-logo-name {
+    display: flex;
+    align-items: center;
+    margin-right: 0;
+}
+
+</style>
+<nav class="navbar navbar-expand-md bg-white fixed-top blog-navbar py-md-0">
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand d-md-none d-lg-block ml-6" id="site-logo-name" href="">
+            <img alt="Image placeholder" src="{%static 'public/img/logo.svg' %}" class="xuehua-navbar-logo">
+        </a>
+        <span class="xuehua-site-title ml-2">{{ site_logo_name }}</span>
+    </div>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">   
+        </ul>
+        <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+                {% get_notifications_count user 'false' as msgnum %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" title="{{ user.username }}，欢迎回来！">
+                        {% if msgnum > 0 %}
+                            <span class="get-msg text-center">{{ msgnum }}</span>
+                        {% endif %}
+                        {% get_user_avatar_tag user %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mt-0 border-0"
+                         aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item pl-3" href="{% url 'oauth:profile' %}"><i
+                                class="fa fa-fw fa-user text-primary mr-2"></i>个人信息</a>       
+                        {% if user.is_staff %}
+                            <a class="dropdown-item pl-3" href="{% url 'admin:index' %}"><i
+                                    class="fa fa-fw fa-key text-primary mr-2"></i>后台管理</a>
+                            
+                        {% endif %}
+                        {% url 'comment:notification_no_read' as no_read_url %}
+                        {% url 'comment:notification' as read_url %}
+                        <a class="dropdown-item pl-3"
+                           href="{% if msgnum > 0 %}{{ no_read_url }}{% else %}{{ read_url }}{% endif %}">
+                            <i class="fa fa-fw fa-bell text-primary mr-2"></i>消息
+                            {% if msgnum > 0 %}
+                                <span class="badge badge-warning ml-3 text-center">{{ msgnum }}</span>
+                            {% endif %}
+                        </a>
+                        <a class="dropdown-item pl-3" href="{% url 'account_logout' %}"><i
+                                class="fa fa-fw fa-sign-out text-primary mr-2"></i>退出</a>
+                    </div>
+                </li>
+            {% else %}
+                <li class="nav-item mr-2">
+                    <a class="nav-link py-md-3" href="{% url 'account_login' %}?next={{ request.path }}">登录</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-md-3" href="{% url 'account_signup' %}?next={{ request.path }}">注册</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

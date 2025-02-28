@@ -1,0 +1,4 @@
+﻿User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /comment/

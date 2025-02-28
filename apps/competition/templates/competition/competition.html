@@ -1,0 +1,92 @@
+{% extends "public/base.html" %}
+{% load static %}
+{% load blog_tags %}
+{% load humanize %}
+{% load ctf_tags %}
+{% block head_title %}竞赛中心 - SnowCTF{% endblock %}
+{% block metas %}
+<meta name="description" content="参与 CTF 挑战，提升您的网络安全技能。多种类型和难度的挑战等待您来挑战！">
+<meta name="keywords" content="CTF,Web安全,黑客挑战,网络安全,靶场">
+{% endblock %}
+
+{% block top-file %}
+<!-- 引入 Bootstrap CSS -->
+
+
+{% endblock %}
+
+{% block base_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+
+
+
+            <div class="summary-list">
+                {% for competition in competitions %}
+
+                <div class="article-block col-lg-12 mt-2">
+
+                    <div class="media mb-1 mb-sm-2 p-2 p-lg-3">
+                        <div class="align-self-center rounded-6 mr-2 mr-lg-3 w-25 modal-open">
+                            <a href="{{ article.get_absolute_url }}">
+                                <img class="w-100 article-img" src="{{ competition.img_link.url }}"
+                                    alt="{{ article.title }}">
+                            </a>
+                        </div>
+
+
+                        <div class="media-body">
+                            {% if competition.start_time > now %}
+                            <div class="position-absolute"
+                                style="top: 0; right: 0; width: 50px; height: 50px; background-color: #ffc107; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                                <span
+                                    style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">未开始</span>
+                            </div>
+                            {% elif competition.end_time < now %} <div class="position-absolute"
+                                style="top: 0; right: 0; width: 50px; height: 50px; background-color: #dc3545; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                                <span
+                                    style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">已结束</span>
+                        </div>
+                        {% else %}
+                        <div class="position-absolute"
+                            style="top: 0; right: 0; width: 50px; height: 50px; background-color: #007bff; color: white; font-size: 10px; z-index: 1; display: flex; justify-content: center; align-items: center; clip-path: polygon(100% 0, 0 0, 100% 100%);">
+                            <span style="transform: rotate(45deg) translate(0px, -10px); position: absolute;">进行中</span>
+                        </div>
+                        {% endif %}
+                        <h2 class="mt-0 font-weight-bold text-info f-17">
+                            <a href="{% url 'competition:competition_detail' competition.slug %}">{{ competition.title}}</a>
+                        </h2>
+                        <p class="d-none d-sm-block mb-2 f-15">
+                            {{ competition.description|my_slice:':50' }}</p>
+                        <div class="meta-container mb-0 f-12">
+
+                            <span><i class="fa fa-eye ml-2 mr-1"></i>{{ competition.end_time|date:"Y-m-d H:i" }}</span>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {% empty %}
+            <div class="p-3 mt-3 bg-white">
+                <p>暂时没有比赛!</p>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+
+
+        <div class="col-lg-4 d-none d-lg-block">
+            {% include 'public/tags/base_right.html' %}
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,857 @@
+.custom-badge-sm {
+    font-size: 0.75em;
+    padding: 0.25em 0.4em;
+}
+
+.top-headers {
+    background-color: transparent;  /* 改为透明背景 */
+    padding-bottom: 0;
+    position: relative;
+    border-bottom: none;
+    margin-bottom: -1px;  /* 添加负边距使其与下方内容重合 */
+}
+
+.top-headers::after {
+    content: '';
+    position: absolute;
+    bottom: 0;  /* 调整位置 */
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: rgb(228, 226, 226);  /* 适配夜间模式的颜色 */
+    z-index: 1;
+}
+
+.nav-tabs {
+    border-bottom: none;
+    position: relative;
+    z-index: 2;  /* 提高层级 */
+    margin-bottom: 0;  /* 移除底部边距 */
+}
+
+/* 其他样式保持不变 */
+.nav-tabs .nav-link {
+    border: none;
+    padding: 0.5rem 1rem 1rem;
+   
+    transition: color 0.2s;
+}
+
+.nav-tabs .nav-link:hover {
+    
+    border: none;
+    background: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    color: #0d6efd;
+    background: transparent;
+    position: relative;
+}
+
+.nav-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #0d6efd;
+}
+
+
+
+
+
+.profile-list {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+}
+
+.profile-list-item {
+    display: block;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.profile-list-item:hover {
+    background-color: #f8f9fa;
+    text-decoration: none;
+    color: #333;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    font-size: 1rem;
+    padding-left: 1rem;
+     /* 添加左内边距 */
+}
+
+
+/* 自定义下拉按钮样式 */
+/* 当前页码样式 */
+.current-page {
+    border: 1px solid #0d6efd;
+    background-color: #fff;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.2rem;
+    color: #333;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+/* 每页条数下拉按钮样式 */
+.per-page-dropdown .per-page-btn {
+    color: #333 !important;
+    border-color: #0d6efd !important;
+    background-color: #fff !important;
+}
+
+.per-page-dropdown .per-page-btn:hover,
+.per-page-dropdown .per-page-btn:focus,
+.per-page-dropdown .per-page-btn:active,
+.per-page-dropdown .per-page-btn.active {
+    color: #333 !important;
+    border-color: #0d6efd !important;
+    background-color: #fff !important;
+}
+
+.per-page-dropdown .per-page-btn:focus,
+.per-page-dropdown .per-page-btn.focus {
+    box-shadow: none !important;
+}
+
+/* 下拉菜单样式 */
+.per-page-dropdown .per-page-menu {
+    min-width: 80px;
+    border: none;
+    font-size: 0.875rem;
+}
+
+.per-page-dropdown .per-page-menu .dropdown-item.active {
+    background-color: #f8f9fa;
+    color: #2178fc;
+    font-weight: normal;
+}
+
+.current-page {
+    border: 1px solid #0d6efd;
+    background-color: #fff;
+    padding: 0.1rem 0.5rem;  /* 减小上下内边距 */
+    border-radius: 0.2rem;
+    color: #333;
+    font-size: 0.875rem;  /* 可选：使字体稍小，与按钮一致 */
+    line-height: 1.7;  /* 减小行高 */
+}
+
+
+#unfollowConfirmModal .modal-content {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#unfollowConfirmModal .modal-header .close {
+    padding: 1rem;
+    margin: -1rem -1rem -1rem auto;
+}
+
+#unfollowConfirmModal .modal-body {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+#unfollowConfirmModal .unfollow-cancel-btn,
+#unfollowConfirmModal .unfollow-confirm-btn {
+    font-size: 0.9rem;
+    padding: 0.375rem 1.5rem;
+    border-radius: 4px;
+}
+
+#unfollowConfirmModal .unfollow-cancel-btn {
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+#unfollowConfirmModal .unfollow-cancel-btn:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+}
+
+#unfollowConfirmModal .modal-dialog {
+    max-width: 320px;
+}
+
+#unfollowConfirmModal .close {
+    outline: none !important;  /* 移除点击时的外边框 */
+    box-shadow: none !important;  /* 移除阴影 */
+}
+
+#unfollowConfirmModal .close:focus {
+    outline: none !important;
+}
+
+
+
+.follow-text {
+    font-size: 15px;  /* 默认字体大小 */
+}
+
+@media (max-width: 768px) {
+    .follow-text {
+        font-size: 16px;  /* 移动端字体大小 */
+    }
+}
+
+.media-icons {
+    margin: 0 .5rem;
+    padding: 0 .5rem;
+    border-left: 1px solid var(--izone-gray-1-1);
+}
+
+
+
+.position-fixed {
+    position: fixed !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+.message-toast {
+    box-shadow: 0 3px 6px -4px rgba(0,0,0,.12), 0 6px 16px 0 rgba(0,0,0,.08);
+    min-width: 240px;
+    animation: slideIn 0.3s ease-in-out;
+    max-height: 45px;
+}
+
+.bg-success {
+    background-color: #61abff !important;
+}
+
+.bg-error, .bg-danger {
+    background-color: #fc7c7c !important;
+}
+
+.bg-warning {
+    background-color: #f8b754 !important;
+}
+
+.bg-info {
+    background-color: #b4b8be !important;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#loading-overlay {
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+
+.reg-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.reg-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.reg-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding: 20px 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.reg-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+}
+
+.reg-step:not(:last-child):after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #ddd;
+    z-index: 1;
+}
+
+.reg-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+}
+
+.reg-step.reg-active .reg-step-number {
+    background-color: #007bff;
+    color: white;
+}
+
+.reg-step-title {
+    font-size: 14px;
+    color: #666;
+}
+
+.reg-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.reg-title {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.reg-type {
+    margin-bottom: 20px;
+}
+
+.reg-badge {
+    background: #e9ecef;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.reg-fields {
+    margin-bottom: 30px;
+}
+
+.reg-fields p {
+    margin-bottom: 20px;
+}
+
+.reg-fields label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;
+}
+
+.reg-fields input[type="text"],
+.reg-fields input[type="email"],
+.reg-fields input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.reg-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.reg-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.reg-btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.reg-btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.reg-btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.reg-btn-secondary:hover {
+    background-color: #545b62;
+}
+
+/* 错误消息样式 */
+.reg-fields .errorlist {
+    color: #dc3545;
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0;
+    font-size: 14px;
+}
+
+/* 帮助文本样式 */
+.reg-fields .helptext {
+    color: #6c757d;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* 验证码相关样式 */
+.captcha-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.captcha-input {
+    flex: 1;
+}
+
+.captcha-image {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.captcha-image img {
+    height: 35px;  /* 降低高度 */
+    width: auto;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.refresh-captcha {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    color: #007bff;
+    cursor: pointer;
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.refresh-captcha:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+}
+
+/* 添加验证码输入框样式 */
+input[name="captcha"] {
+    font-size: 18px;  /* 增大输入字体 */
+    letter-spacing: 2px;  /* 增加字母间距 */
+    text-align: center;  /* 居中显示 */
+    font-weight: 500;  /* 稍微加粗 */
+}
+
+/* 保留原有样式 */
+/* ... */
+
+/* 添加响应式设计 */
+@media (max-width: 768px) {
+    .reg-container {
+        padding: 0 10px;
+        margin: 20px auto;
+    }
+    
+    .reg-card {
+        padding: 20px 15px;
+    }
+    
+    .reg-steps {
+        padding: 15px 10px;
+        margin-bottom: 25px;
+    }
+    
+    .reg-step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .reg-step-title {
+        font-size: 12px;
+    }
+    
+    .captcha-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .captcha-image {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .captcha-image img {
+        height: 40px;
+        width: auto;
+    }
+    
+    .refresh-captcha {
+        background: transparent;  /* 透明背景 */
+        border: none; 
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    input[name="captcha"] {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    
+    .reg-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .reg-buttons button {
+        width: 100%;
+    }
+}
+
+/* 针对特小屏幕的额外调整 */
+@media (max-width: 375px) {
+    .reg-step-title {
+        font-size: 10px;
+    }
+    
+    .reg-title {
+        font-size: 20px;
+    }
+}
+
+
+
+/* 排行榜样式 */
+.ctf-ranking-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ctf-ranking-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.ctf-ranking-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.ctf-ranking-body {
+    padding: 0;
+}
+
+/* 返回按钮样式 */
+.ctf-back-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: #6c757d;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.ctf-back-btn:hover {
+    color: #007bff;
+    text-decoration: none;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.ctf-back-btn i {
+    font-size: 14px;
+    margin-right: 2px;
+}
+
+/* 标签切换按钮 */
+.ctf-tab-group {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ctf-tab-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.ctf-tab-btn:first-child {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+.ctf-tab-btn:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.ctf-tab-btn:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.ctf-tab-active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.ctf-tab-active:hover {
+    background-color: #0069d9;
+    color: #fff;
+}
+
+/* 排行榜表格样式 */
+.ctf-ranking-table {
+    width: 100%;
+    background: #fff;
+    border-collapse: collapse;
+}
+
+.ctf-ranking-table th {
+    padding: 1rem 1.5rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+    background-color: #f8f9fa;
+    text-align: left;
+}
+
+.ctf-ranking-table td {
+    padding: 1rem 1.5rem;
+    font-size: 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* 列样式 */
+.ctf-rank-col {
+    width: 80px;
+    text-align: center;
+}
+
+.ctf-user-col {
+    min-width: 180px;
+}
+
+.ctf-team-col {
+    min-width: 180px;
+}
+
+.ctf-score-col {
+    width: 100px;
+    text-align: center;
+}
+
+/* 排名标记 */
+.ctf-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 13px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ctf-rank-1 {
+    background: linear-gradient(135deg, #ffd700, #f9a825);
+    color: #fff;
+}
+
+.ctf-rank-2 {
+    background: linear-gradient(135deg, #e0e0e0, #9e9e9e);
+    color: #fff;
+}
+
+.ctf-rank-3 {
+    background: linear-gradient(135deg, #d7ccc8, #a1887f);
+    color: #fff;
+}
+
+.ctf-rank-number {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* 用户信息样式 */
+.ctf-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.ctf-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ctf-user-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    flex-shrink: 0;
+}
+
+.ctf-user-name {
+    font-weight: 500;
+    color: #2d3436;
+    max-width: 150px;
+    display: inline-block;
+}
+
+.ctf-team-name {
+    max-width: 150px;
+    display: inline-block;
+}
+
+/* 得分样式 */
+.ctf-points {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.ctf-solved-count {
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* 空数据提示 */
+.ctf-empty-message {
+    text-align: center;
+    padding: 2.5rem !important;
+    color: #6c757d;
+    font-size: 14px;
+    background-color: #f8f9fa;
+}
+
+/* 表格悬停效果 */
+.ctf-ranking-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .ctf-ranking-header {
+        padding: 1rem;
+    }
+    
+    .ctf-ranking-title {
+        font-size: 16px;
+    }
+    
+    .ctf-tab-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .ctf-ranking-table th,
+    .ctf-ranking-table td {
+        padding: 0.75rem 1rem;
+        font-size: 13px;
+    }
+    
+    .ctf-rank-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+    
+    .ctf-user-avatar,
+    .ctf-user-avatar-placeholder {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .ctf-user-name,
+    .ctf-team-name {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .ctf-ranking-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .ctf-ranking-header > div {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+    
+    .ctf-tab-group {
+        width: 100%;
+    }
+    
+    .ctf-tab-btn {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .ctf-user-name,
+    .ctf-team-name {
+        max-width: 100px;
+    }
+    
+    .ctf-ranking-table th:not(.ctf-rank-col):not(.ctf-score-col),
+    .ctf-ranking-table td:not(.ctf-rank-col):not(.ctf-score-col) {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}

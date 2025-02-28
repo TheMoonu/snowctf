@@ -1,0 +1,186 @@
+{% extends 'public/base.html' %}
+{% block head_title %}比赛报名 - SonwCTF{% endblock %}
+{% block metas %}
+
+<meta name="description" content="比赛报名">
+<meta name="keywords" content="比赛报名">
+
+{% endblock %}
+
+{% block base_content %}
+<div class="reg-container">
+    <div class="reg-card">
+        <!-- 步骤指示器 -->
+        <div class="reg-steps">
+            {% if is_team_competition %}
+                <div class="reg-step {% if current_step >= 1 %}reg-active{% endif %}">
+                    <div class="reg-step-number">1</div>
+                    <div class="reg-step-title">创建/加入队伍</div>
+                </div>
+                <div class="reg-step {% if current_step >= 2 %}reg-active{% endif %}">
+                    <div class="reg-step-number">2</div>
+                    <div class="reg-step-title">填写个人信息</div>
+                </div>
+            {% else %}
+                <div class="reg-step reg-active">
+                    <div class="reg-step-number">1</div>
+                    <div class="reg-step-title">填写个人信息</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 表单 -->
+        <div class="reg-form">
+            <div class="reg-header">
+                <h2 class="reg-title">{{ competition.title }}</h2>
+                <div class="reg-type">
+                    <span class="reg-badge">{{ competition.get_competition_type_display }}</span>
+                </div>
+            </div>
+
+            <form method="post" class="reg-form-content" id="registrationForm">
+                {% csrf_token %}
+                <input type="hidden" name="captcha_key" value="{{ captcha_key }}" id="captchaKey">
+                
+                <div class="reg-fields">
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            
+                            {% if field.name == 'captcha' %}
+                                <div class="captcha-container">
+                                    <div class="captcha-input">
+                                        {{ field }}
+                                    </div>
+                                    <div class="captcha-image">
+                                        <img src="{{ captcha_image }}" id="captchaImage" alt="验证码">
+                                        <button type="button" class="refresh-captcha" onclick="refreshCaptcha()">
+                                            <i class="fas fa-sync-alt"></i> 刷新
+                                        </button>
+                                    </div>
+                                </div>
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <p class="helptext">{{ field.help_text }}</p>
+                                {% endif %}
+                            {% else %}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <p class="helptext">{{ field.help_text }}</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="reg-buttons">
+                    {% if is_team_competition and current_step > 1 %}
+                        <button type="button" name="previous" class="btn btn-secondary" onclick="submitForm('previous')">
+                             上一步
+                        </button>
+                    {% endif %}
+                    <button type="button" class="btn btn-primary" onclick="showConfirmModal()">
+                        {% if is_team_competition %}
+                            {% if current_step == 1 %}
+                                下一步 
+                            {% else %}
+                                完成报名 
+                            {% endif %}
+                        {% else %}
+                            完成报名 
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">确认操作</h5>
+            </div>
+            <div class="modal-body text-center pb-4">
+                <p class="mb-4" id="confirmMessage">
+                    {% if is_team_competition %}
+                        {% if current_step == 1 %}
+                            确定要创建/加入该队伍吗？
+                        {% else %}
+                            确定要完成报名吗？
+                        {% endif %}
+                    {% else %}
+                        确定要完成报名吗？
+                    {% endif %}
+                </p>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary btn-sm mr-2" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="confirmSubmit()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showConfirmModal() {
+        $('#confirmModal').modal('show');
+    }
+    
+    function confirmSubmit() {
+        $('#confirmModal').modal('hide');
+        document.getElementById('registrationForm').submit();
+    }
+    
+    function submitForm(action) {
+        if (action === 'previous') {
+            let form = document.getElementById('registrationForm');
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'previous';
+            input.value = 'true';
+            form.appendChild(input);
+            form.submit();
+        }
+    }
+    
+    function refreshCaptcha() {
+        // 发送AJAX请求获取新的验证码
+        fetch('/api/v1/refresh-captcha/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 更新验证码图片和key
+                document.getElementById('captchaImage').src = data.captcha_image;
+                document.getElementById('captchaKey').value = data.captcha_key;
+                // 清空验证码输入框
+                document.querySelector('input[name="captcha"]').value = '';
+            } else {
+                alert('刷新验证码失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('刷新验证码失败，请重试');
+        });
+    }
+</script>
+{% endblock %}

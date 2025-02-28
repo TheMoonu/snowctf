@@ -1,0 +1,48 @@
+{% load static comment_tags %}
+<div class="card border-0 f-16" id="editor-block">
+    {% if user.is_authenticated %}
+    <div class="card-body p-2 p-md-3">
+        <textarea class="form-control" id="comment-form" name="text"
+                  placeholder="评论请使用 markdown 语法" rows="5" required></textarea>
+    </div>
+    <div class="card-footer border-0 bg-white py-0 px-2 px-md-3" id="editor-footer">
+        <button type="button" class="btn btn-primary btn-sm float-right f-14"
+                id="push-com" data-csrf="{{ csrf_token }}" data-challenge-id="{{ challenge.uuid }}"
+                data-ajax-url="{% url 'comment:add_comment_challenge' %}">提交评论</button>
+        <button class="btn btn-sm py-0 px-2" id="emoji-btns" type="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-smile-o fa-2x"></i>
+        </button>
+        <div class="dropdown-menu" id='emoji-list' aria-labelledby="emoji-btns">
+            {% get_emoji_imgs as emoji_imgs %}
+            {% for emoji_list in emoji_imgs %}
+            <div class="editor-btns px-2">
+                {% for emoji in emoji_list %}
+                {% with emoji.0|emoji_to_url as emoji_url %}
+                <button class="btn p-1"><img
+                        src="{% static emoji_url %}"
+                        title="{{ emoji.1 }}" alt="{{ emoji.0 }}"
+                        data-emoji=":{{ emoji.0 }}:"></button>
+                {% endwith %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card-body text-center m-2 m-md-3 f-16" id="no-editor">
+        <div>您尚未登录，请
+            <a class="text-danger" href="{% url 'account_login' %}?next={{ request.path }}">登录</a> 或
+            <a class="text-danger" href="{% url 'account_signup' %}?next={{ request.path }}">注册</a> 后评论
+        </div>
+        <div class="login-link mt-2">
+            <a class="mx-3" href="/accounts/weibo/login/?next={{ request.path }}" title="功能开发中，请耐心等候！"><i
+                    class="fa fa-weibo fa-2x"></i></a>
+            <a class="mx-3" href="/accounts/github/login/?next={{ request.path }}" title="功能开发中，请耐心等候！"><i
+                    class="fa fa-github fa-2x"></i></a>
+            <!--/accounts/weibo/login/?next={{ request.path }}-->
+            <!--/accounts/github/login/?next={{ request.path }}-->
+        </div>
+    </div>
+    {% endif %}
+</div>
