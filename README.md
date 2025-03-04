@@ -1,4 +1,4 @@
-# SNOWCTF_V1.0
+# SNOWCTF_V1.0(竞赛版)
 
 一个基于django开发的CTF竞赛平台。
 主要功能：CTF比赛、漏洞靶场、网络安全夺旗比赛、动态FLAG、数据大屏、作弊监测、动态分数、团队赛、个人赛、自动化报名。
@@ -6,6 +6,8 @@
 后端：Python3.11+Django5.1
 前端：Bootstrap+[iznoe](https://github.com/Hopetree/izone "iznoe")
 安装及使用指导手册：https://www.secsnow.cn/blog/subject/6/
+
+页面UI具体参考：SECSNOW_V1.0(练习题版) [SECSNOW_V1.0(练习题版)](https://www.secsnow.cn/snowlab/)
 
 ## 动态分数算法
 比赛分数会根据解题次数动态调整，跟解题快慢无关
