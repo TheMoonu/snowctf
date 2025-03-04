@@ -23,6 +23,9 @@ points = max(
 
 ## 界面介绍
 
+#### 数据大屏
+![比赛界面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img801a18cc9b1fd1aa9ca7f7a29947ab8.png)
+
 #### 主页面
 
 ![主页面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img20250228164549.png)
@@ -41,9 +44,6 @@ points = max(
 ![比赛界面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img20250228170352.png)
 
 ![比赛界面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img20250228170423.png)
-
-#### 数据大屏
-![比赛界面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img801a18cc9b1fd1aa9ca7f7a29947ab8.png)
 
 #### 后台管理
 ![比赛界面](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img20250228170004.png)
