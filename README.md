@@ -9,7 +9,9 @@
 
 ## 动态分数算法
 比赛分数会根据解题次数动态调整，跟解题快慢无关
+
 ![分数](https://raw.githubusercontent.com/TheMoonu/TheMoonu/main/img20250228171202.png)
+
 ```python
 points = max(
     minimum_points, 
