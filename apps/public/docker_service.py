@@ -666,7 +666,7 @@ class DockerService:
     @staticmethod
     def get_docker_url(docker_engine):
         if docker_engine.host_type == 'LOCAL':
-            return 'unix://var/run/docker.sock'
+            return 'unix:///var/run/docker.sock'
         else:
             return f"tcp://{docker_engine.host}:{docker_engine.port}"
 

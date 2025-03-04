@@ -110,6 +110,12 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_TZ = False
 
+
+# 容器相关设置
+CONTAINER_EXPIRY_HOURS = float(os.getenv('CONTAINER_EXPIRY_HOURS', '2')) # 容器过期时间（小时）
+# 是否需要调整时区（减去8小时）
+CELERY_ADJUST_TIMEZONE = os.getenv('CELERY_ADJUST_TIMEZONE', 'True').upper() == 'TRUE'
+
 SILENCED_SYSTEM_CHECKS = [
     'models.W036',  # 忽略 MySQL 不支持条件性唯一约束的警告
 ]
@@ -118,7 +124,7 @@ SIMPLEUI_HOME_TITLE = 'SnowCTF 管理系统'
 SIMPLEUI_LOGO = 'https://www.secsnow.cn/static/blog/img/logo.svg' #自定义后台logo
 
 
-SITE_ID = os.getenv('SITE_ID', 4)
+SITE_ID = int(os.getenv('SITE_ID', '4'))
 ACCOUNT_EMAIL_REQUIRED = True
 
 
@@ -215,7 +221,7 @@ CELERY_BROKER_URL = "redis://{}:{}/1".format(snow_redis_host, snow_redis_port)
 # 时区跟Django的一致
 CELERY_TIMEZONE = TIME_ZONE
 # 不使用utc，所以在定时任务里面的时间应该比上海时间少8小时，比如要设置本地16:00执行，那么应该在定时里面设置成8:00
-CELERY_ENABLE_UTC = True
+CELERY_ENABLE_UTC = False
 # 应对django在使用mysql的时候设置USE_TZ = False导致的报错
 DJANGO_CELERY_BEAT_TZ_AWARE = False
 # 支持数据库django-db和缓存django-cache存储任务状态及结果
@@ -247,10 +253,10 @@ if admin_email_user:
         ADMINS.append((a_user, a_email))
 
 # 邮箱配置
-EMAIL_HOST = os.getenv('SNOW_EMAIL_HOST', 'smtp.163.com')
-EMAIL_HOST_USER = os.getenv('SNOW_EMAIL_HOST_USER', 'sec_snow@163.com')
+EMAIL_HOST = os.getenv('SNOW_EMAIL_HOST', '')
+EMAIL_HOST_USER = os.getenv('SNOW_EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('SNOW_EMAIL_HOST_PASSWORD',
-                                'UHOMSCVDKMXXSSIM')  # 这个不是邮箱密码，而是授权码
+                                '')  # 这个不是邮箱密码，而是授权码
 EMAIL_PORT = os.getenv('SNOW_EMAIL_PORT', 465)  # 由于阿里云的25端口打不开，所以必须使用SSL然后改用465端口
 EMAIL_TIMEOUT = 5
 # 是否使用了SSL 或者TLS，为了用465端口，要使用这个

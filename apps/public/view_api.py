@@ -20,7 +20,7 @@ from celery.exceptions import MaxRetriesExceededError
 import requests
 from requests.exceptions import RequestException
 from urllib.parse import urlparse
-
+from django.conf import settings
 
 class ContainerManager:
     def __init__(self, user, challenge_uuid):
@@ -44,30 +44,12 @@ class ContainerManager:
         if datetime.fromisoformat(cached_container['expires_at']) < timezone.now():
             raise ValueError("容器已过期，请重新启动")
 
-        """ ports = json.loads(cached_container['port'])
-        port_string = ','.join(map(str, ports.values()))
-        container_url = f"{cached_container['ip_address']}:{port_string}"
-        
-        if cached_container['domain']:
-            container_url = f"{uuid.uuid4().hex[:8]}.{cached_container['domain']}:{port_string}"
-            
-        return {
-            "container_url": f"http://{container_url}",
-            "expires_at": cached_container['expires_at']
-        } """
-        
 
     def check_prerequisites(self):
         """检查创建容器的前置条件"""
         if not self.challenge.is_active:
             raise ValueError("该题目当前未启用，暂时无法访问")
         
-        
-
-        
-
-        
-
         active_container = UserContainer.objects.filter(
             user=self.user,
             expires_at__gt=timezone.now()
@@ -147,14 +129,23 @@ class ContainerManager:
     def _schedule_cleanup(self, container, docker_engine, expires_at):
         """调度容器清理任务"""
         try:
+            # 获取是否需要调整时区的设置
+            adjust_timezone = getattr(settings, 'CELERY_ADJUST_TIMEZONE', False)
+            
+            # 根据设置决定是否调整时区
+            eta_time = expires_at
+            if adjust_timezone:
+                # 减去8小时
+                eta_time = expires_at - timedelta(hours=8)
             task = cleanup_container.apply_async(
                 args=[
                     container['id'],
                     self.user.id,
                     docker_engine.id
                 ],
-                eta=expires_at - timedelta(hours=8)
+                eta=eta_time  # 使用可能调整过的时间
             )
+            
         except Exception as e:
              # 打印更详细的错误信息
             raise ValueError(f"未能调度清理任务: {e}")
@@ -222,7 +213,8 @@ class ContainerManager:
 
     def _handle_container_creation(self, containers_info, web_container_info, docker_engine) -> Dict:
         """处理容器创建结果"""
-        expires_at = timezone.now() + timedelta(hours=2)
+        expiry_hours = getattr(settings, 'CONTAINER_EXPIRY_HOURS', 2)
+        expires_at = timezone.now() + timedelta(hours=expiry_hours)
         try:
             # 创建容器记录
             user_container = None
@@ -242,9 +234,7 @@ class ContainerManager:
             self._schedule_cleanup(containers_info[-1], docker_engine, expires_at)
 
             if web_container_info:
-                # 扣除金币
-
-                    
+               
                 # 返回容器URL
                 ports = web_container_info['ports'].values()
                 container_urls = []
