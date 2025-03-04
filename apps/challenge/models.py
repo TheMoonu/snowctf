@@ -300,17 +300,13 @@ class Challenge(models.Model):
         new_points = self.calculate_dynamic_points()
         point_difference = new_points - self.points  # 计算分数差值
 
-        if point_difference == 0:  # 分数没变化，直接返回
+        if point_difference == 0:  
             return
-            
-        # 更新题目当前分数
         self.points = new_points
         self.save(update_fields=['points'])
-
-        # 获取所有相关的比赛
         competitions = self.competition_set.all()
 
-        with transaction.atomic():  # 使用事务确保原子性
+        with transaction.atomic():  
             for competition in competitions:
                 if competition.competition_type == 'team':
                     # 批量更新团队分数
@@ -367,8 +363,6 @@ class Challenge(models.Model):
     
     def add_solve(self):
         """增加解题次数并更新分数"""
-        
-
         self.solves += 1
         self.update_points()
         self.save(update_fields=['solves'])
@@ -380,16 +374,6 @@ class Challenge(models.Model):
             
         points = int(self.initial_points * (3 + min(1, solve_count)) / (3 + solve_count))
         return max(self.minimum_points, points)
-
-
-
-
-
-   
-    
-
-
-    
 
 class Tag(models.Model):
     name = models.CharField('文章标签', max_length=20,unique=True)
@@ -403,8 +387,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-    
 
     def get_Challenge_list(self):
         """"""

@@ -185,52 +185,39 @@ def clear_ranking_cache(competition_id=None):
         cache.delete(key)
 
     
-
-
-
 def generate_captcha(length=4):
     """生成指定长度的随机验证码"""
-    # 只使用大写字母和数字，避免容易混淆的字符
-    characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'  # 排除容易混淆的0,1,I,O
-    
+    characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'  
     return ''.join(random.choice(characters) for _ in range(length))
 
 def generate_captcha_image(captcha_text):
     """生成验证码图片"""
-    width, height = 120, 40  # 调整尺寸，更适合移动设备
-    # 创建图片对象，使用浅色背景
+    width, height = 120, 40  
     image = Image.new('RGB', (width, height), color=(245, 245, 245))
     draw = ImageDraw.Draw(image)
-    
-    # 尝试加载字体，如果失败则使用默认字体
     try:
-        font = ImageFont.truetype('arial.ttf', 24)  # 调整字体大小
+        font = ImageFont.truetype('arial.ttf', 24)  
     except IOError:
         try:
-            # 尝试其他常见字体
             font = ImageFont.truetype('DejaVuSans.ttf', 24)
         except IOError:
             font = ImageFont.load_default()
-    
-    # 绘制干扰线（减少数量，降低干扰）
-    for i in range(2):  # 减少干扰线
+    for i in range(2):  
         start_point = (random.randint(0, width // 3), random.randint(0, height))
         end_point = (random.randint(width // 3 * 2, width), random.randint(0, height))
         draw.line([start_point, end_point], fill=(random.randint(100, 200), random.randint(100, 200), random.randint(100, 200)), width=1)
     
-    # 绘制干扰点（减少数量）
-    for i in range(15):  # 减少干扰点
+    for i in range(15): 
         draw.point((random.randint(0, width), random.randint(0, height)), fill=(random.randint(100, 200), random.randint(100, 200), random.randint(100, 200)))
     
-    # 绘制验证码文本
+ 
     for i, char in enumerate(captcha_text):
-        # 使用深色字体，增加对比度
+       
         color = (random.randint(0, 50), random.randint(0, 50), random.randint(0, 50))
-        # 调整位置，使字符更分散
-        position = (15 + i * 25, 8 + random.randint(-2, 2))  # 调整字符位置
+      
+        position = (15 + i * 25, 8 + random.randint(-2, 2))  
         draw.text(position, char, font=font, fill=color)
     
-    # 转换为base64编码
     buffer = BytesIO()
     image.save(buffer, format='PNG')
     img_str = base64.b64encode(buffer.getvalue()).decode()

@@ -167,9 +167,6 @@ class Competition(models.Model):
             return None
         return self.end_time - timezone.now()
 
-
-
-
 class Team(models.Model):
     name = models.CharField('队伍名称', max_length=255)  # 队伍名称
     member_count = models.IntegerField('队伍成员最大数量', default=4)  # 队伍成员数量
@@ -184,7 +181,6 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class ScoreTeam(models.Model):
@@ -243,8 +239,6 @@ class ScoreUser(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.team.name} - {self.points} points"
-
-
 
 
 

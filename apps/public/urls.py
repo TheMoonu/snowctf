@@ -21,14 +21,4 @@ urlpatterns = [
     path('<slug:slug>/', Competition_detail.as_view(), name='competition_detail'),
     
     path('rankings/<int:competition_id>/<str:ranking_type>/', RankingsView.as_view(), name='rankings'),
-    
-    #path('api/v1/challenge/toggle-active/', toggle_active_challenge, name='challenge_toggle_active'),
-    #path('api/v1/challenge/edit/', edit_challenge, name='challenge_edit'),
-    #path('', index, name='indexs')
-
-    # 普通用户访问
-    #path('user-only/', user_required()(UserView), name='user_only'),
-    
-    # 管理员访问
-    # path('admin-only/', admin_required()(AdminView), name='admin_only'),
 ]

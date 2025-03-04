@@ -70,8 +70,6 @@ class DockerEngine(models.Model):
     def __str__(self):
         return self.name
     
-    
-
     @property
     def url(self):
         protocol = "https" if self.needs_tls else "http"

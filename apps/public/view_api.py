@@ -67,8 +67,6 @@ class ContainerManager:
         if not active_engines:
             raise ValueError("没有可用的Docker引擎")
         
-        
-
         engine_loads = UserContainer.objects.values('docker_engine').annotate(
             container_count=Count('id')
         )
@@ -168,14 +166,10 @@ class ContainerManager:
             # 检查前置条件
             self.check_prerequisites()
             
-            # 设置创建锁
             cache.set(self.cache_key, True, timeout=60)
-            
-            # 获取Docker引擎和服务
             docker_engine = self._get_docker_engine()
             docker_service = self._get_docker_service(docker_engine)
             
-            # 创建容器
             containers_info, web_container_info = docker_service.create_containers(
                 challenge=self.challenge,
                 user=self.user,
@@ -184,7 +178,6 @@ class ContainerManager:
                 cpu_limit=docker_engine.cpu_limit
             )
             
-            # 处理创建结果
             return self._handle_container_creation(
                 containers_info, 
                 web_container_info, 
@@ -222,15 +215,12 @@ class ContainerManager:
                 user_container = self._create_user_container(
                     container, docker_engine, expires_at
                 )   
-            
-            # 确保至少创建了一个容器
             if not user_container:
                 self._cleanup_on_error()
                 raise ValueError("没有成功创建任何容器")
             
             UserContainerCache.set(user_container)
             
-            # 使用最后创建的容器进行清理调度
             self._schedule_cleanup(containers_info[-1], docker_engine, expires_at)
 
             if web_container_info:
@@ -252,10 +242,6 @@ class ContainerManager:
                     "container_urls": container_urls,  # 返回URL列表
                     "expires_at": expires_at
                 }
-
-
-            
-        
         except Exception as e:
             #
             raise ValueError(f"未能创建 web 容器{e}")
@@ -273,13 +259,9 @@ def create_container_api(challenge_uuid, user) -> Tuple[Dict, Optional[str]]:
     """
     try:
         container_manager = ContainerManager(user, challenge_uuid)
-        
-        # 检查已存在的容器
-        
         existing_container = container_manager.check_existing_container()
         if existing_container:
             return existing_container, None
-        # 创建新容器
         result = container_manager.create_container()
         return result, None
         

@@ -165,8 +165,6 @@ class DockerService:
                 project_name=project_name
             )
             
-
-            
             logger.info(f"容器: {container}")
             if flag_script:
                 
@@ -286,8 +284,6 @@ class DockerService:
                 'cpu_quota': int(cpu_limit * 100000),
             }
 
-            
-            
             if 'entrypoint' in service_config:
                 container_config['entrypoint'] = service_config['entrypoint']
 

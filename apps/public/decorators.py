@@ -51,17 +51,13 @@ def api_response(view_func):
                 }
             }, status=401)  # 401 Unauthorized
 
-        # 允许访问
         response = view_func(request, *args, **kwargs)
 
-        # 确保返回的数据是 JsonResponse
         if isinstance(response, JsonResponse):
             return response
-
-        # 如果返回的是其他类型，格式化为 JsonResponse
         return JsonResponse({
             'success': True,
             'data': response
-        }, status=200)  # 默认状态码为 200 OK
+        }, status=200)  
 
     return _wrapped_view
