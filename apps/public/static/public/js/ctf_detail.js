@@ -248,7 +248,6 @@ $(document).ready(function () {
         });
     }
 
-    // 使用事件委托绑定点击事件
     $(document).on('click', '#createContainerBtn', handleCreateContainer);
     $(document).on('click', '#destroyContainerBtn', handleDestroyContainer);
 
@@ -257,11 +256,6 @@ $(document).ready(function () {
         clearCountdown();
     });
 
-    // 初始化
     loadContainerStatus();
 
-
-
-
-    
 });
