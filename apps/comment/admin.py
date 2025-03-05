@@ -7,12 +7,12 @@ from .models import (ChallengeComment, Notification, SystemNotification)
 @admin.register(ChallengeComment)
 class CommentAdmin(admin.ModelAdmin):
     date_hierarchy = 'create_date'
-    list_display = ('id', 'author', 'belong', 'create_date', 'show_content')
-    list_filter = ('author', 'belong',)
+    list_display = ('id', 'author', 'belong', 'competition', 'create_date', 'show_content')
+    list_filter = ('author', 'belong', 'competition')
     ordering = ('-id',)
     # 设置需要添加a标签的字段
     list_display_links = ('id', 'show_content')
-    search_fields = ('author__username', 'belong__title')
+    search_fields = ('author__username', 'belong__title', 'competition__title')
 
     # 使用方法来自定义一个字段，并且给这个字段设置一个名称
     def show_content(self, obj):

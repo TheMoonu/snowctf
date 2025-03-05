@@ -51,7 +51,7 @@
         <a class="navbar-brand d-md-none d-lg-block ml-6" id="site-logo-name" href="">
             <img alt="Image placeholder" src="{%static 'public/img/logo.svg' %}" class="xuehua-navbar-logo">
         </a>
-        <span class="xuehua-site-title ml-2">{{ site_logo_name }}</span>
+        <span class="xuehua-site-title ml-2"><a href="{% url 'public:CompetitionView' %}">{{ site_logo_name }}</a></span>
     </div>
     
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"

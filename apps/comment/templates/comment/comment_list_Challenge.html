@@ -4,7 +4,11 @@
 <div class="card-body p-2 p-md-3 f-17" id="comment-list">
     <ul class="list-unstyled">
         <div class="mb-3">
-            <strong>{% get_challenge_comment_user_count challenge %}&nbsp;人参与&nbsp;|&nbsp;{% get_challenge_comment_count challenge %}&nbsp;条评论</strong>
+            {% if competition %}
+                <strong>{% get_challenge_comment_user_count challenge competition %}&nbsp;人参与&nbsp;|&nbsp;{% get_challenge_comment_count challenge competition %}&nbsp;条评论</strong>
+            {% else %}
+                <strong>{% get_challenge_comment_user_count challenge %}&nbsp;人参与&nbsp;|&nbsp;{% get_challenge_comment_count challenge %}&nbsp;条评论</strong>
+            {% endif %}
         </div>
         {% for comment in comment_list %}
         <div class="comment-parent pt-2" id="com-{{ comment.id }}">
@@ -12,15 +16,13 @@
                 {% get_user_avatar_tag comment.author %}
                 <div class="media-body ml-2">
                     <a class="float-right small mr-2 rep-btn" href="#editor-block"
-                       data-repid="{{ comment.id }}" data-repuser="{{ comment.author.username }}">回复</a>
+                       data-repid="{{ comment.id }}" data-repuser="{{ comment.author.username }}" data-no-loading>回复</a>
                     <p class="mt-0 mb-1">
                         {% get_user_link comment.author as user_link_info %}
                         {% if comment.author.uuid %}
                         <strong >
-                            <a href="{% url 'oauth:profile' %}"
-                               title="前往 {{ comment.author }} 的个人主页"
-                               target="_blank">{{ comment.author }}
-                            </a>
+                            {{ comment.author }}
+                            
                         </strong>
                         {% else %}
                         <strong title="管理员">{{ comment.author }}</strong>
@@ -54,15 +56,12 @@
                     {% get_user_avatar_tag each.author %}
                     <div class="media-body ml-2">
                         <a class="float-right small mr-2 rep-btn" href="#editor-block"
-                           data-repid="{{ each.id }}" data-repuser="{{ each.author.username }}">回复</a>
+                           data-repid="{{ each.id }}" data-repuser="{{ each.author.username }}" data-no-loading>回复</a>
                         <p class="mt-0 mb-1">
                             {% get_user_link each.author as each_user_link_info %}
                             
                             <strong >
-                                <a href="{% url 'oauth:profile' %}"
-                                   title="前往 {{ each.author }} 的个人主页"
-                                   target="_blank">{{ each.author }}
-                                </a>
+                                {{ each.author }}
                             </strong>
 
                             {% if each_user_link_info.is_verified %}
@@ -78,10 +77,8 @@
                             <small class="text-danger">[管理员]</small>
                             {% endif %}
                             <i class="fa fa-share"></i>
-                            @<a href="{% url 'oauth:profile' %}"
-                               title="前往 {{ each.rep_to.author }} 的个人主页"
-                               target="_blank">{{ each.rep_to.author }}
-                            </a>
+                            @{{ each.rep_to.author }}
+                            
                         </p>
                         <p class="small text-muted">{{ each.create_date|naturaltime }}</p>
                     </div>

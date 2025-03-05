@@ -4,10 +4,13 @@
     <div class="card-body p-2 p-md-3">
         <textarea class="form-control" id="comment-form" name="text"
                   placeholder="评论请使用 markdown 语法" rows="5" required></textarea>
+        
+        
     </div>
     <div class="card-footer border-0 bg-white py-0 px-2 px-md-3" id="editor-footer">
         <button type="button" class="btn btn-primary btn-sm float-right f-14"
                 id="push-com" data-csrf="{{ csrf_token }}" data-challenge-id="{{ challenge.uuid }}"
+                data-competition-id="{{ competition.id }}"
                 data-ajax-url="{% url 'comment:add_comment_challenge' %}">提交评论</button>
         <button class="btn btn-sm py-0 px-2" id="emoji-btns" type="button"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -29,6 +32,7 @@
             {% endfor %}
         </div>
     </div>
+ 
     {% else %}
     <div class="card-body text-center m-2 m-md-3 f-16" id="no-editor">
         <div>您尚未登录，请
@@ -45,4 +49,6 @@
         </div>
     </div>
     {% endif %}
+
+   
 </div>

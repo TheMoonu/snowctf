@@ -267,7 +267,17 @@ class Challenge(models.Model):
         return f"{self.title} ({self.category}) - [{tag_names}]"
     
     def get_absolute_url(self):
-        return reverse('ctf:challenge_detail', kwargs={'uuid': self.uuid})
+    # 获取与此挑战关联的第一个比赛
+        competition = self.competition_set.first()
+        
+        if competition:
+            return reverse('public:challenge_detail', kwargs={
+                'slug': competition.slug,
+                'uuid': self.uuid
+            })
+    
+    # 如果没有关联的比赛，可以返回到挑战列表页面
+        return reverse('public:challenge_list')  # 假设有这个URL
 
     def save(self, *args, **kwargs):
         self.description = escape_xss(self.description)

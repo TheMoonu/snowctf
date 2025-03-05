@@ -190,56 +190,22 @@
                     </div>
                 </div>
                 
-                
-
-
-
-                <div class=" text-center f-14" id="result"></div>
-                
-
-
-
-                
-
-
-
+                <div class=" text-center f-14" id="result"></div>  
             </div>
-
-
-
-
-
-
-
             <div class="card mt-2 rounded-6 border-0" id="comment-block">
                 {% if challenge.is_practice %}
                     {% include 'comment/comment_form_Challenge.html' %}
-                    {% get_challenge_parent_comments challenge as comment_list %}
+                    {% get_challenge_parent_comments challenge competition as comment_list %}
                     {% include 'comment/comment_list_Challenge.html' %}
                 {% endif %}
             </div>
         </div>
-
-
-
-
-
-
         <div class="col-lg-4 d-none d-lg-block">
             {% include 'public/tags/base_right.html' %}
         </div>
-
-
-        
     </div>
-
-
 </div>
-
-
 {% endblock %}
-
-
 
 {% block end_file %}
 <script>

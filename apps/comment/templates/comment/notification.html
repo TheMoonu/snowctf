@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'public/base.html' %}
 {% load static %}
 {% load humanize %}
 {% load comment_tags blog_tags %}
@@ -28,11 +28,11 @@
                                         <strong>{{ each.create_p }}</strong>&nbsp;在&nbsp;
                                         {% if each.comment.belong.title %}
                                         <a class="text-info" title="查看评论详情"
-                                           href="{{ each.comment.belong.get_absolute_url }}#com-{{ each.comment.id }}">
+                                           href="{{ each.comment.get_absolute_url }}">
                                             {{ each.comment.belong.title }}</a>
                                         {% else %}
                                         <a class="text-info" title="查看评论详情"
-                                           href="{{ each.comment.belong.get_absolute_url }}#com-{{ each.comment.id }}">
+                                           href="{{ each.comment.get_absolute_url }}">
                                             [已删除]</a>
                                         {% endif %}
                                         &nbsp;中@了你，并评论道：
