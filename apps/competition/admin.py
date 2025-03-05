@@ -172,7 +172,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         'status_badge', 
         'points_earned',
         'ip_address', 
-        'created_at'
+        'created_at',
+        'competition'
     ]
     
     list_filter = [
@@ -180,6 +181,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         ('challenge', admin.RelatedOnlyFieldListFilter),
         'created_at',
         ('team', admin.RelatedOnlyFieldListFilter),
+        ('competition', admin.RelatedOnlyFieldListFilter),
     ]
     
     search_fields = [
@@ -207,14 +209,16 @@ class SubmissionAdmin(admin.ModelAdmin):
                 'team',
                 'status',
                 'points_earned',
-                'created_at'
+                'created_at',
+                'competition'
             )
         }),
         ('提交详情', {
             'fields': (
                 'flag',
                 'ip',
-                'is_first_blood_display'
+                'is_first_blood_display',
+           
             )
         }),
     )
@@ -270,7 +274,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related(
             'challenge',
             'user',
-            'team'
+            'team',
+            'competition'
         )
 
 

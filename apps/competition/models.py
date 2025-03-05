@@ -310,6 +310,7 @@ class Submission(models.Model):
     ]
 
     challenge = models.ForeignKey('challenge.Challenge', on_delete=models.CASCADE, related_name='submissions', verbose_name="题目")
+    competition = models.ForeignKey('Competition', on_delete=models.CASCADE, null=True, blank=True, related_name='submissions', verbose_name="所属比赛")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="提交用户")
     team = models.ForeignKey('Team', on_delete=models.CASCADE, null=True, blank=True, verbose_name="所属队伍")
     flag = models.CharField('提交的Flag', max_length=255)
@@ -326,6 +327,7 @@ class Submission(models.Model):
             models.Index(fields=['challenge', 'user', 'status']),
             models.Index(fields=['challenge', 'team', 'status']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['competition']),
         ]
 
     def __str__(self):
@@ -334,11 +336,17 @@ class Submission(models.Model):
 
     def is_first_blood(self):
         """检查是否是一血"""
-        return not Submission.objects.filter(
+        query = Submission.objects.filter(
             challenge=self.challenge,
             status='correct',
             created_at__lt=self.created_at
-        ).exists()
+        )
+        
+        # 如果有比赛信息，则限定在同一比赛内判断一血
+        if self.competition:
+            query = query.filter(competition=self.competition)
+            
+        return not query.exists()
 
     @property
     def submission_time(self):
@@ -357,17 +365,3 @@ class Submission(models.Model):
             created_at__lt=self.created_at
         ).exists()
 
-
-
-
-def register_signals():
-    @receiver(post_save, sender=ScoreUser)
-    def clear_user_ranking_cache(sender, instance, **kwargs):
-        clear_ranking_cache(instance.competition_id if instance.competition else None)
-
-    @receiver(post_save, sender=ScoreTeam)
-    def clear_team_ranking_cache(sender, instance, **kwargs):
-        clear_ranking_cache(instance.competition_id if instance.competition else None)
-
-# 在模型定义完成后注册信号
-register_signals()

@@ -96,7 +96,7 @@ def verify_flag(submitted_flag, challenge, user):
                 return False, "Flag格式错误"
                 
             # 解析flag内容
-            flag_content = submitted_flag[5:-1]  # 去掉 'flag{' 和 '}'
+            flag_content = submitted_flag[5:-1] 
             parts = flag_content.split('_')
             
 

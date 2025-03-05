@@ -26,19 +26,21 @@ class DashboardService:
                 competition=self.competition
             ).count(),
             'submission_count': Submission.objects.filter(
-                challenge__in=self.competition.challenges.all()
+                competition=self.competition
             ).count(),
             'solved_rate': round(
                 Submission.objects.filter(
-                    challenge__in=self.competition.challenges.all(),
-                    status='correct'
-                ).values('challenge').distinct().count()/ 
-                max(self.competition.challenges.count(), 1),
-                1
+                    competition=self.competition,
+                    status='correct'  # 只计算正确的提交
+                ).count() / 
+                max(Submission.objects.filter(
+                    competition=self.competition
+                ).count(), 1),  # 总提交次数，避免除以零
+                2  # 保留两位小数
             ),
             'total_challenges': self.competition.challenges.count()
         }
-        
+     
         # 缓存5分钟
         self.redis_conn.setex(cache_key, 300, json.dumps(stats))
         return stats

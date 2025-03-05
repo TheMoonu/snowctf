@@ -330,6 +330,7 @@ def verify_flag(request, slug):
             submission = Submission.objects.create(
                 challenge=challenge,
                 user=user,
+                competition=competition,
                 team=team,
                 flag=submitted_flag,
                 status='correct' if is_correct else 'wrong',
