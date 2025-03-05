@@ -195,9 +195,6 @@ def create_web_container(request, slug):
         return JsonResponse({"error": str(e)}, status=500)
     
 
-
-
-
 @login_required
 @require_http_methods(["DELETE"])
 def remove_container(request, container_id):
@@ -220,12 +217,6 @@ def remove_container(request, container_id):
         return JsonResponse({"message": "容器已成功移除"})
     except Exception as e:
         return JsonResponse({"error": f"移除容器失败: {str(e)}"}, status=500)
-
-
-
-
-
-
 
 
 @login_required
@@ -413,18 +404,11 @@ def verify_flag(request, slug):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)   
 
 
-
-
-
-
-
-
-
 # 更新 create_web_container_view 函数
 def create_web_container_view(request):
     return CTFChallengeListView.as_view()(request)
 
-
+@login_required
 def challenge_detail(request, slug, uuid):
     # 获取对应的比赛
     competition = get_object_or_404(Competition, slug=slug)
@@ -576,15 +560,6 @@ def delete_challenge(request):
         print(e)
 
 
-
-
-
-
-
- 
-
-
-
 def CompetitionViewList(request):
     # 获取所有比赛对象
     competitions = Competition.objects.all().order_by('-start_time')  # 按创建时间倒序
@@ -644,8 +619,6 @@ def CompetitionViewList(request):
     }
     # 渲染模板并传递比赛对象列表和当前时间
     return render(request, 'public/competition.html', context)
-
-
 
 
 class Competition_detail(ListView):
@@ -870,15 +843,6 @@ class Competition_detail(ListView):
 
 
 
-
-
-
-
-
-
-
-
-
 @login_required
 def registrationView(request, slug, re_slug):
     competition = get_object_or_404(Competition, slug=slug, re_slug=re_slug)
@@ -895,16 +859,12 @@ def registrationView(request, slug, re_slug):
             team = Team.objects.filter(competition=competition, members=request.user).first()
             if current_step == 1:
                 messages.success(request, f'您已经是队伍 "{team.name}" 的成员，请继续完成报名')
-                # 如果用户已在队伍中但尚未完成个人信息，则直接进入第二步
                 request.session['team_id'] = team.id
                 request.session['registration_step'] = 2
                 
                 return redirect('competition:registration_detail', slug=slug, re_slug=re_slug)
             elif 'team_id' not in request.session:
-                # 确保session中有team_id
-                
-                request.session['team_id'] = team.id
-    
+                request.session['team_id'] = team.id 
     now = timezone.now()
     if now >= competition.start_time:
         messages.error(request, '比赛已开始，无法报名')
@@ -1026,7 +986,6 @@ def refresh_captcha(request):
     return JsonResponse({'success': False, 'message': '非法请求'}, status=400)
 
 
-
 class RankingsView(TemplateView):
     template_name = 'public/rankings.html'
     
@@ -1061,7 +1020,6 @@ class RankingsView(TemplateView):
         return context
 
 
-
 @login_required
 def competition_dashboard(request, slug):
     competition = get_object_or_404(Competition, slug=slug)
@@ -1079,21 +1037,10 @@ def competition_dashboard(request, slug):
         if not registration:
             messages.warning(request, "您还未报名该比赛，无法查看比赛数据")
             return redirect('public:competition_detail', slug=slug)
-                
-
-    
     context = {
         'competition': competition,
     }
     return render(request, 'public/dashboard.html', context)
-
-# 添加API端点用于获取实时数据
-
-
-
-
-
-
 
 
 @login_required
