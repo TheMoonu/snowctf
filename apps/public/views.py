@@ -137,7 +137,8 @@ def create_web_container(request, slug):
         challenge = Challenge.objects.get(uuid=challenge_uuid)
 
         competition = get_object_or_404(Competition, slug=competition_slug)
-     
+        super_user = request.user.is_superuser or request.user.is_staff
+
         if challenge not in competition.challenges.all():
             return JsonResponse({
                 'error': '该题目不属于当前比赛'
@@ -148,16 +149,17 @@ def create_web_container(request, slug):
                 user=request.user
             ).first()
            
-            if not registration:
+            if not registration and not super_user:
                 return JsonResponse({
                     "error": "您还未报名该比赛，请先报名后再尝试"
                 }, status=403)
-                
+
+            if not super_user:
             # 如果是团队赛，检查用户是否在队伍中
-            if competition.competition_type == Competition.TEAM and not registration.team_name:
-                return JsonResponse({
-                    "error": "团队赛需要加入队伍后才能参与"
-                }, status=403)
+                if competition.competition_type == Competition.TEAM and not registration.team_name:
+                    return JsonResponse({
+                        "error": "团队赛需要加入队伍后才能参与"
+                    }, status=403)
 
         cached_container = UserContainerCache.get(request.user.id, challenge_uuid)
         if cached_container:
@@ -237,6 +239,7 @@ def verify_flag(request, slug):
     # 获取比赛和题目
     competition = get_object_or_404(Competition, slug=slug)
     challenge = get_object_or_404(Challenge, uuid=challenge_uuid)
+    super_user = request.user.is_superuser or request.user.is_staff
     user = request.user
     
     # 检查题目是否属于比赛
@@ -247,6 +250,20 @@ def verify_flag(request, slug):
         }, status=400)
     
     # 检查用户是否报名
+    if super_user:
+        is_correct, error_msg = verify_flag_func(submitted_flag, challenge, user)
+        if is_correct:
+            return JsonResponse({
+                        'status': 'success',
+                        'message': f'恭喜！Flag 正确，您测试成功'
+                    })
+        else:
+            return JsonResponse({
+                        'status': 'error',
+                        'message': f'Flag 不正确，请再试一次'
+                    })
+
+
     registration = Registration.objects.filter(
         competition=competition,
         user=user
@@ -417,8 +434,9 @@ def challenge_detail(request, slug, uuid):
     # 获取特定的挑战
     challenge = get_object_or_404(competition.challenges.all(), uuid=uuid)
 
-
-     
+    super_user = request.user.is_superuser or request.user.is_staff
+    if super_user:
+            messages.info(request, "您是管理员，比赛未开始可以对题目进行测试")
     if challenge not in competition.challenges.all():
         messages.warning(request, "该题目不属于当前比赛")
         return redirect('public:competition_detail', slug=slug)
@@ -427,17 +445,22 @@ def challenge_detail(request, slug, uuid):
             competition=competition,
             user=request.user
         ).first()
+
         
-        if not registration:
+        if not registration and not super_user:
             messages.warning(request, "您还未报名该比赛，请先报名后再尝试")
             return redirect('public:competition_detail', slug=slug)
+        
+        
+        
                 
 
 
     # 检查访问权限
-    if not competition.is_running():
+    if not competition.is_running() and not super_user:
         if competition.status == 'pending':
             messages.warning(request, f"比赛尚未开始，将于 {competition.start_time.strftime('%Y-%m-%d %H:%M')} 开始")
+            
         else:  # ended
             messages.warning(request, f"比赛已于 {competition.end_time.strftime('%Y-%m-%d %H:%M')} 结束")
         return redirect('public:competition_detail', slug=slug)
@@ -1035,7 +1058,7 @@ def competition_dashboard(request, slug):
             user=request.user
         ).first()
         
-        if not registration:
+        if not registration and not request.user.is_superuser and not request.user.is_staff:
             messages.warning(request, "您还未报名该比赛，无法查看比赛数据")
             return redirect('public:competition_detail', slug=slug)
     context = {

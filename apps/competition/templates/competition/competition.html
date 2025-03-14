@@ -29,9 +29,9 @@
 
                     <div class="media mb-1 mb-sm-2 p-2 p-lg-3">
                         <div class="align-self-center rounded-6 mr-2 mr-lg-3 w-25 modal-open">
-                            <a href="{{ article.get_absolute_url }}">
+                            <a href="{% url 'competition:competition_detail' competition.slug %}">
                                 <img class="w-100 article-img" src="{{ competition.img_link.url }}"
-                                    alt="{{ article.title }}">
+                                    alt="{{ competition.title}}">
                             </a>
                         </div>
 

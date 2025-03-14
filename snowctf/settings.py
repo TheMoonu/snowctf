@@ -167,8 +167,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # 配置数据库
 snow_mysql_host = os.getenv('SNOW_MYSQL_HOST', '127.0.0.1')
 snow_mysql_name = os.getenv('SNOW_MYSQL_NAME', 'snowctf')
-snow_mysql_user = os.getenv('SNOW_MYSQL_USER', 'snow')
-snow_mysql_pwd = os.getenv('SNOW_MYSQL_PASSWORD', 'whpEHWFs25hZkffB')
+snow_mysql_user = os.getenv('SNOW_MYSQL_USER', 'snowctf')
+snow_mysql_pwd = os.getenv('SNOW_MYSQL_PASSWORD', 'rfFGr7aJmiSx3ewh')
 snow_mysql_port = os.getenv('SNOW_MYSQL_PORT', 3306)
 
 DATABASES = {

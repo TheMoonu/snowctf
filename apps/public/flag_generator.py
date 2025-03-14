@@ -4,7 +4,7 @@ import hashlib
 from django.core.cache import cache
 from competition.models import CheatingLog, Team
 from django.utils import timezone
-
+from django.conf import settings
 def generate_flag(challenge, user):
     """生成动态flag
     
@@ -52,8 +52,8 @@ def generate_flag(challenge, user):
         'username': user.username,
         'generated_at': str(timezone.now())
     }
-    
-    cache.set(cache_key, flag_info, 3600*2)  # 缓存1小时
+    expiry_hours = getattr(settings, 'CONTAINER_EXPIRY_HOURS', 2)
+    cache.set(cache_key, flag_info, 3600*expiry_hours)
     return flag
 
 def get_or_generate_flag(challenge, user):
