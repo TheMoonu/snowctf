@@ -286,7 +286,7 @@ def verify_flag(request, slug):
         return JsonResponse({'status': 'error', 'message': '比赛已经结束'}, status=400)
     
     # 检查容器题目
-    if challenge.deployment_type == 'COMPOSE':
+    if challenge.docker_compose:
         cached_container = UserContainerCache.get(user.id, challenge_uuid)
         if not cached_container or \
            datetime.fromisoformat(cached_container['expires_at']) < timezone.now() or \
@@ -436,7 +436,7 @@ def challenge_detail(request, slug, uuid):
 
     super_user = request.user.is_superuser or request.user.is_staff
     if super_user:
-            messages.info(request, "您是管理员，比赛未开始可以对题目进行测试")
+            messages.info(request, "您是管理员，可以对题目进行测试")
     if challenge not in competition.challenges.all():
         messages.warning(request, "该题目不属于当前比赛")
         return redirect('public:competition_detail', slug=slug)

@@ -273,7 +273,7 @@ SITE_END_TITLE = os.getenv('SNOW_SITE_END_TITLE', 'SNOWCTF')
 SITE_DESCRIPTION = os.getenv('SNOW_SITE_DESCRIPTION', 'SNOWCTF 一个开源、共创、共享CTF竞赛网站')
 SITE_KEYWORDS = os.getenv('SNOW_SITE_KEYWORDS', 'secsnow,CTF竞赛、漏洞靶场、网络安全')
 
-PROTOCOL_HTTPS = os.getenv('PROTOCOL_HTTPS', 'HTTP').lower()
+PROTOCOL_HTTPS = os.getenv('SNOW_PROTOCOL_HTTPS', 'HTTP').lower()
 # ***************************************** 网站配置结束 *****************************************
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

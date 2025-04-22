@@ -8,7 +8,7 @@ from django.db.models import Count
 class ChallengeAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'difficulty', 'points', 'solves', 
                    'is_practice', 'is_active', 'is_top', 'created_at', 'author')
-    list_filter = ('category', 'difficulty', 'deployment_type','is_practice', 'is_active', 'is_top')
+    list_filter = ('category', 'difficulty','is_practice', 'is_active', 'is_top')
     search_fields = ('title', 'description')
     readonly_fields = ('uuid', 'solves', 'created_at', 'updated_at', 'first_blood_user', 'first_blood_time')
     filter_horizontal = ('tags', )
@@ -22,7 +22,7 @@ class ChallengeAdmin(admin.ModelAdmin):
             'fields': ('flag_type', 'flag_template')
         }),
         ('部署配置', {
-            'fields': ('deployment_type', 'static_files', 'docker_compose')
+            'fields': ('static_files', 'docker_compose')
         }),
         ('其他信息', {
             'fields': ('hint', 'is_active', 'is_practice','author')

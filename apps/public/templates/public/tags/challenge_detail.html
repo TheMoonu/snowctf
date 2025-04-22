@@ -123,41 +123,36 @@
                     </div>
                     
                     
-                    {% if challenge.deployment_type == 'COMPOSE' %}
-                        <div class="mt-4 text-center mt-5 mb-3">
-                            {% if user.is_authenticated %}
-                                <button type="button" id="createContainerBtn" class="btn btn-primary btn-sm "
-                                    data-csrf="{{ csrf_token }}" data-challenge-uuid="{{ challenge.uuid }}"
-                                    data-competition-slug="{{ competition.slug }}"
-                                    data-ajax-url="{% url 'public:create_web_container' competition.slug %}">
-                                    创建题目环境
-                                </button>
-                            {% else %}
-                                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
-                                    创建题目环境
-                                </a>
+                    <div class="mt-4 text-center mt-5 mb-3">
+                        {% if user.is_authenticated %}
+
+                            {% if challenge.docker_compose%}
+                            <button type="button" id="createContainerBtn" class="btn btn-primary btn-sm"
+                                data-csrf="{{ csrf_token }}" data-challenge-uuid="{{ challenge.uuid }}"
+                                data-competition-slug="{{ competition.slug }}"
+                                data-ajax-url="{% url 'public:create_web_container' competition.slug %}">
+                                创建题目环境
+                            </button>
                             {% endif %}
                             <button type="button" id="destroyContainerBtn" class="btn btn-danger btn-sm" style="display: none;"
                                 data-csrf="{{ csrf_token }}" data-challenge-uuid="{{ challenge.uuid }}"
                                 data-ajax-url="{% url 'public:destroy_web_container' %}">
                                 摧毁题目环境
                             </button>
-                        
-                        </div>
-                    {% endif %}
-                    {% if challenge.deployment_type == 'STATIC' and challenge.static_files %}
-                        <div class="mt-4 text-center mt-5 mb-3">
-                            {% if user.is_authenticated %}
+                            {% if challenge.static_files %}
                                 <a href="{{ challenge.static_files.file.url }}" class="btn btn-primary btn-sm" download data-no-loading>
-                                    <i class="fa fa-download mr-1"></i> 下载题目文件
-                                </a>
-                            {% else %}
-                                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-download mr-1"></i> 下载题目文件
+                                    <i class="fa fa-download mr-1"></i> 下载附件
                                 </a>
                             {% endif %}
-                        </div>
-                    {% endif %}
+                        {% else %}
+                            
+                            <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                                去登录
+                            </a>
+                            
+                        {% endif %}
+                        
+                    </div>
 
                     {% if challenge.category in 'OTHER,签到' %}
                         <div class="mt-4 text-center mt-5 mb-3"></div>

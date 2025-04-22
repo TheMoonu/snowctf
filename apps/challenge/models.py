@@ -214,20 +214,13 @@ class Challenge(models.Model):
     points = models.IntegerField(default=500, verbose_name="当前分数")
     solves = models.IntegerField(default=0, verbose_name="解决次数")
     flag_template = models.CharField(max_length=255, verbose_name="Flag模板", default='flag{{{uuid}_{user}_{prefix}_{hash}}}',help_text="用于生成动态Flag的模板")
-    deployment_type = models.CharField(
-        max_length=10, 
-        choices=DEPLOYMENT_CHOICES, 
-        default='STATIC', 
-        verbose_name="部署类型"
-    )
-    
     static_files = models.ForeignKey(
         StaticFile,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="静态文件",
-        help_text="选择要使用的静态文件（仅用于静态文件部署）"
+        verbose_name="题目附件",
+        help_text="选择要使用的题目附件"
     )
     
     
@@ -237,8 +230,8 @@ class Challenge(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="Docker Compose配置",
-        help_text="选择Docker Compose配置（仅用于Docker Compose部署）"
+        verbose_name="容器配置",
+        help_text="选择Docker容器配置"
     )
     first_blood_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

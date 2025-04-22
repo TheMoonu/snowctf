@@ -45,12 +45,11 @@ class DockerService:
 
     def create_containers(self, challenge, user, flag, memory_limit, cpu_limit):
         with closing(docker.DockerClient(base_url=self.url, tls=self.tls_config, timeout=300)) as client:
-            if challenge.deployment_type == 'COMPOSE':
+            if challenge.docker_compose:
                 return self._create_compose_containers(client, challenge, user, flag, memory_limit, cpu_limit)
             
             
-            if challenge.deployment_type == 'STATIC':
-                return ""
+            
 
 
     def _create_compose_containers(self, client, challenge, user, flag, memory_limit, cpu_limit):
