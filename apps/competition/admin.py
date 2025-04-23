@@ -50,6 +50,7 @@ class CompetitionAdmin(admin.ModelAdmin):
         'registration_link'   # 添加报名链接
     )
     search_fields = ('title',)
+    filter_horizontal = ('challenges', )
     prepopulated_fields = {'slug': ('title',)}
 
     def competition_type_display(self, obj):

@@ -104,10 +104,14 @@ class Competition(models.Model):
     
         # 更新Redis缓存
         cache_key = f'competition_time_data_{self.id}'
-        
+        difficulties_key = f"competition_{self.slug}_difficulties"
+        challenge_types_key = f"competition_{self.slug}_challenge_types"
+
         # 清除旧缓存
         cache.delete(cache_key)
-        
+        cache.delete(difficulties_key)
+
+        cache.delete(challenge_types_key)
         # 创建新的缓存数据
         competition_data = {
             'id': self.id,

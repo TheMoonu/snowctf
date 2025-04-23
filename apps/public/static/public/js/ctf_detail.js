@@ -175,7 +175,7 @@ $(document).ready(function () {
                 challenge_uuid: challengeUuid,
                 csrfmiddlewaretoken: csrf
             },
-            timeout: 300000,
+            timeout: 700000,
             success: function (response) {
                 localStorage.setItem(containerStatusKey, 'active');
                 localStorage.setItem(containerInfoKey, JSON.stringify(response));
@@ -223,7 +223,7 @@ $(document).ready(function () {
                 challenge_uuid: challengeUuid,
                 csrfmiddlewaretoken: csrf
             },
-            timeout: 300000,
+            timeout: 700000,
             success: function (response) {
                 $('#results').html(`<div class="alert alert-primary" role="alert">容器已摧毁</div>`).show();
                 localStorage.removeItem(containerStatusKey);
