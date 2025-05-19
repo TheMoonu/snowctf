@@ -90,11 +90,10 @@
                     <div class="row text-center blog-info-list">
                         <div class="col">
                             <div>
-                                <p class="mt-1">作者</p>
-                               <p class="mt-1 badge">{{ challenge.author.username }}</p>
+                                <p class="mt-1">当前分数</p>
+                                <p class="mt-1 badge">{{ challenge.points}}</p>
                                 
                             </div>
-                            
                         </div>
                         <div class="col">
                             <div>
@@ -105,21 +104,37 @@
                         </div>
                         <div class="col">
                             <div>
+                              
                                 <p class="mt-1">一血</p>
-                                {% if challenge.first_blood_user %}
-                                    <p class="mt-1 badge">{{ challenge.first_blood_user.username }}</p>
-                                {% else %}
-                                    <p class="mt-1 badge">暂无</p>
-                                {% endif %}
+                                
+                               
+                                <p class="mt-1 badge">{% get_first_blood challenge competition %}</p>
+                                
                             </div>
                         </div>
                         <div class="col">
                             <div>
-                                <p class="mt-1">当前分数</p>
-                                <p class="mt-1 badge">{{ challenge.points}}</p>
+                              
+                                <p class="mt-1">二血</p>
+                                
+                               
+                                <p class="mt-1 badge">{% get_second_blood challenge competition %}</p>
                                 
                             </div>
                         </div>
+                        <div class="col">
+                            <div>
+                              
+                                <p class="mt-1">三血</p>
+                                
+                               
+                                <p class="mt-1 badge">{% get_third_blood challenge competition %}</p>
+                                
+                            </div>
+                        </div>
+                       
+                        
+                        
                     </div>
                     
                     
@@ -140,9 +155,17 @@
                                 摧毁题目环境
                             </button>
                             {% if challenge.static_files %}
-                                <a href="{{ challenge.static_files.file.url }}" class="btn btn-primary btn-sm" download data-no-loading>
-                                    <i class="fa fa-download mr-1"></i> 下载附件
-                                </a>
+                                {% if file_url %}
+
+                                    
+                                        <!-- 如果没有 file_url，表示没有权限或者文件不存在 -->
+                                    <a href="{{ file_url }}" class="btn btn-primary btn-sm challenge-file-download" download data-no-loading>
+                                        <i class="fa fa-download mr-1"></i> 下载附件
+                                    </a>
+                                
+                                   
+
+                                {% endif %}
                             {% endif %}
                         {% else %}
                             
@@ -170,10 +193,13 @@
                         </div>
                         <div>
                             {% if user.is_authenticated %}
-                                <button type="button" class="btn btn-primary f-14" id="submit-flag" 
-                                        data-challenge-uuid="{{ challenge.uuid }}"
-                                        data-verify-url="{% url 'public:verify_flag' competition.slug %}"
-                                        data-csrf="{{ csrf_token }}">
+                                
+                                <button type="button" class="btn btn-primary f-14"
+                                    id="submit-flag" 
+                                    data-challenge-uuid="{{ challenge.uuid }}"
+                                    data-verify-url="{% url 'public:verify_flag' competition.slug %}"
+                                    data-csrf="{{ csrf_token }}"
+                                    data-has-static-file="{% if file_url %}True{% else %}False{% endif %}">
                                     提交
                                 </button>
                             {% else %}

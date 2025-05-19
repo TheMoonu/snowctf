@@ -122,7 +122,7 @@
                         <span class="text-truncate" style="max-width: 80px;" data-toggle="tooltip" data-placement="top" title="{{ user.user }}">{{ user.user }}</span>
                         {% if user.team %}
                             <span class="text-muted mx-2 flex-shrink-0">|</span>
-                            <span class="text-muted text-truncate" style="max-width: 80px;" data-toggle="tooltip" data-placement="top" title="{{ user.team }}">{{ user.team }}</span>
+                            <span class="text-muted text-truncate" style="max-width: 80px;" data-toggle="tooltip" data-placement="top" title="所在队伍：{{ user.team }}">{{ user.team }}</span>
                         {% endif %}
                         <span class="text-muted mx-2 flex-shrink-0">|</span>
                         <span class="text-muted flex-shrink-0">解题: {{ user.solved_count }}</span>

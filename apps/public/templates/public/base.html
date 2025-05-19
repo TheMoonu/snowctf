@@ -31,18 +31,12 @@
     <script>var stop_headroom = false;</script>
     {% block top-file %}{% endblock %}
     <!--根据cookies判断是否启用暗色主题-->
-    {% if not request.COOKIES.toggleTheme %}
-        {% now_hour as hour %}
-        {% if hour < 6 or hour > 18 %}
-            <link id="theme-css-dark" href="{% static 'public/css/night.css' %}?v={{ static_version.css_blog_night }}"
-                  rel="stylesheet">
-        {% endif %}
-    {% else %}
-        {% if request.COOKIES.toggleTheme == "dark" %}
-            <link id="theme-css-dark" href="{% static 'public/css/night.css' %}?v={{ static_version.css_blog_night }}"
-                  rel="stylesheet">
-        {% endif %}
+    
+    {% if request.COOKIES.toggleTheme == "dark" %}
+        <link id="theme-css-dark" href="{% static 'public/css/night.css' %}?v={{ static_version.css_blog_night }}"
+                rel="stylesheet">
     {% endif %}
+    
 </head>
 
 <body>
@@ -87,20 +81,13 @@
 
 <!--切换主题按钮-->
 <div class="text-center" id="change-theme" title="切换主题">
-    {% if not request.COOKIES.toggleTheme %}
-        {% now_hour as hour %}
-        {% if hour < 6 or hour > 18 %}
-            <i class="fa fa-sun-o"></i>
-        {% else %}
-            <i class="fa fa-moon-o"></i>
-        {% endif %}
+    
+    {% if request.COOKIES.toggleTheme == "dark" %}
+        <i class="fa fa-sun-o"></i>
     {% else %}
-        {% if request.COOKIES.toggleTheme == "dark" %}
-            <i class="fa fa-sun-o"></i>
-        {% else %}
-            <i class="fa fa-moon-o"></i>
-        {% endif %}
+        <i class="fa fa-moon-o"></i>
     {% endif %}
+    
 </div>
 <!--回到顶部按钮-->
 <div class="text-center" id="to-top" title="回到顶部"><i class="fa fa-arrow-up"></i></div>
@@ -184,6 +171,7 @@
 <script src="{% static 'public/js/js.cookie.min.js' %}?v=20191123.12"></script>
 <script src="{% static 'public/js/popper.min.js' %}"></script>
 <script src="{% static 'public/bootstrap/4.3.1/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'public/js/toast.js' %}"></script>
 
 
 <script>

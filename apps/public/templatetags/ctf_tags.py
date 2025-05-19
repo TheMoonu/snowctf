@@ -15,7 +15,7 @@ from challenge.models import (
 
 from django.utils import timezone
 import markdown as md
-from competition.models import Competition, ScoreUser, ScoreTeam
+from competition.models import Competition, ScoreUser, ScoreTeam, Submission
 
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -405,3 +405,75 @@ def compact_time(value):
     
     years = int(days // 365)
     return f"{years}年前"
+
+
+@register.simple_tag # 指定模板文件
+def get_first_blood(challenge,competition=None):
+    # 获取一血、二血、三血的用户或队伍和时间
+    first_blood = Submission.objects.filter(
+        challenge=challenge,
+        competition = competition,
+        status='correct'
+    ).order_by('created_at').first()
+
+   
+
+    # 根据比赛类型，返回队伍名还是用户名
+    if first_blood and first_blood.competition and first_blood.competition.competition_type == 'team':
+        first_blood_info = first_blood.team.name if first_blood.team else '无队伍'
+    else:
+        first_blood_info = first_blood.user.username if first_blood else '暂无'
+
+    
+
+    return first_blood_info
+        
+
+@register.simple_tag # 指定模板文件
+def get_second_blood(challenge, competition=None):
+
+    second_blood = Submission.objects.filter(
+        challenge=challenge,
+        competition =competition,
+        status='correct'
+    ).order_by('created_at')[1] if Submission.objects.filter(
+        challenge=challenge,
+        competition =competition,
+        status='correct'
+    ).count() >= 2 else None
+
+    # 根据比赛类型，返回队伍名还是用户名
+
+
+    if second_blood and second_blood.competition and second_blood.competition.competition_type == 'team':
+        second_blood_info = second_blood.team.name if second_blood.team else '无队伍'
+    else:
+        second_blood_info = second_blood.user.username if second_blood else '暂无'
+
+
+
+    return second_blood_info
+
+@register.simple_tag # 指定模板文件
+def get_third_blood(challenge, competition=None ):
+    # 获取一血、二血、三血的用户或队伍和时间
+
+
+    third_blood = Submission.objects.filter(
+        challenge=challenge,
+        competition= competition,
+        status='correct'
+    ).order_by('created_at')[2] if Submission.objects.filter(
+        challenge=challenge,
+        competition =competition,
+        status='correct'
+    ).count() >= 3 else None
+
+
+
+    if third_blood and third_blood.competition and third_blood.competition.competition_type == 'team':
+        third_blood_info = third_blood.team.name if third_blood.team else '无队伍'
+    else:
+        third_blood_info = third_blood.user.username if third_blood else '暂无'
+
+    return third_blood_info

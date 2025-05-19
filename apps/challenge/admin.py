@@ -10,7 +10,7 @@ class ChallengeAdmin(admin.ModelAdmin):
                    'is_practice', 'is_active', 'is_top', 'created_at', 'author')
     list_filter = ('category', 'difficulty','is_practice', 'is_active', 'is_top')
     search_fields = ('title', 'description')
-    readonly_fields = ('uuid', 'solves', 'created_at', 'updated_at', 'first_blood_user', 'first_blood_time')
+    readonly_fields = ('uuid', 'solves', 'created_at', 'updated_at')
     filter_horizontal = ('tags', )
     date_hierarchy = 'created_at'
     
@@ -28,7 +28,7 @@ class ChallengeAdmin(admin.ModelAdmin):
             'fields': ('hint', 'is_active', 'is_practice','author')
         }),
         ('统计信息', {
-            'fields': ('solves', 'initial_points','minimum_points','first_blood_user', 'first_blood_time'),
+            'fields': ('solves', 'initial_points','minimum_points'),
             'classes': ('collapse',)
         })
     )

@@ -855,3 +855,229 @@ input[name="captcha"] {
         padding-right: 0.5rem;
     }
 }
+
+
+
+
+
+/* 自定义Toast提示框样式 - 移动设备友好的现代简约风格 */
+.custom-toast-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    left: 10px;  /* 添加左侧边距，确保在小屏幕上不会太靠边 */
+    z-index: 9999;
+    max-width: 100%;  /* 确保不超出屏幕 */
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px; /* 使用gap代替margin来控制间距 */
+}
+
+.custom-toast {
+    min-width: auto;
+    top: 30px;  /* 移除最小宽度限制 */
+    width: 100%;  /* 在小屏幕上占满容器宽度 */
+    max-width: 250px;  /* 在大屏幕上限制最大宽度 */
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    pointer-events: auto;
+    position: relative;
+    transform: translateX(100%);
+    opacity: 0;
+    will-change: transform, opacity, max-height;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    max-height: 200px; /* 设置一个足够大的初始高度 */
+    margin: 0; /* 移除margin，使用gap控制间距 */
+}
+
+.custom-toast:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.custom-toast-header {
+    padding: 6px 12px;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 使标题和右侧元素分开 */
+    max-height: 36px;
+}
+
+/* 新增：右侧元素容器 */
+.custom-header-right {
+    display: flex;
+    align-items: center;
+}
+
+.custom-toast-body {
+    padding: 10px 12px;  /* 减小内边距 */
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;  /* 确保长文本会换行 */
+}
+
+/* 关闭按钮样式 - 无边框且更紧凑 */
+.custom-toast .custom-close {
+    color: #999;
+    opacity: 0.8;
+    font-size: 18px;
+    font-weight: normal;
+    padding: 0 0 0 5px; /* 只保留左侧内边距 */
+    background: transparent;
+    border: none;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    margin-left: 5px;
+}
+
+.custom-toast .custom-close:hover {
+    color: #555;
+    opacity: 1;
+}
+
+/* 左侧边框指示器 */
+.custom-toast {
+    position: relative;
+}
+
+.custom-toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #007bff; /* 默认颜色 */
+}
+
+/* 不同类型的Toast样式 */
+.custom-toast-header.custom-bg-success {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    color: #28a745;
+}
+
+.custom-toast-header.custom-bg-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ffc107;
+}
+
+.custom-toast-header.custom-bg-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: #dc3545;
+}
+
+.custom-toast-header.custom-bg-info {
+    background-color: rgba(23, 162, 184, 0.1) !important;
+    color: #17a2b8;
+}
+
+/* 左侧边框颜色 */
+.custom-toast.custom-toast-success::before {
+    background-color: #28a745;
+}
+
+.custom-toast.custom-toast-warning::before {
+    background-color: #ffc107;
+}
+
+.custom-toast.custom-toast-danger::before {
+    background-color: #dc3545;
+}
+
+.custom-toast.custom-toast-info::before {
+    background-color: #17a2b8;
+}
+
+/* 标题和时间样式 */
+.custom-toast-header .custom-title {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1; /* 让标题占据剩余空间 */
+}
+
+.custom-toast-header .custom-time {
+    color: #999;
+    font-size: 11px;
+    white-space: nowrap; /* 防止时间换行 */
+}
+
+/* 媒体查询 - 针对小屏幕设备 */
+@media (max-width: 576px) {
+    .custom-toast-container {
+        right: 5px;
+        left: 5px;
+        top: 5px;
+    }
+    
+    .custom-toast {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .custom-toast-header {
+        padding: 6px 10px;
+        min-height: 24px;
+    }
+    
+    .custom-toast-body {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .custom-toast-header .custom-title {
+        font-size: 13px;
+    }
+    
+    .custom-toast-header .custom-time {
+        font-size: 10px;
+    }
+    
+    .custom-toast .custom-close {
+        font-size: 16px;
+    }
+}
+
+/* 针对极小屏幕的额外优化 */
+@media (max-width: 320px) {
+    .custom-toast-header .custom-time {
+        display: none; /* 在极小屏幕上隐藏时间 */
+    }
+}
+
+/* 显示状态 */
+.custom-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* 隐藏状态 */
+.custom-toast.removing {
+    transform: translateX(100%);
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* 优化阴影过渡 */
+.custom-toast {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s ease-out;
+}
+
+.custom-toast.removing {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}

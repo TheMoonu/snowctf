@@ -286,7 +286,9 @@ def verify_flag(request, slug):
         return JsonResponse({'status': 'error', 'message': '比赛已经结束'}, status=400)
     
     # 检查容器题目
+    is_docker = False
     if challenge.docker_compose:
+        is_docker = True
         cached_container = UserContainerCache.get(user.id, challenge_uuid)
         if not cached_container or \
            datetime.fromisoformat(cached_container['expires_at']) < timezone.now() or \
@@ -366,8 +368,42 @@ def verify_flag(request, slug):
                 # 获取最新的动态分数
                 points_earned = challenge.points
                 
+
+                competition_duration = (competition.end_time - competition.start_time).total_seconds()
+                time_elapsed = (now - competition.start_time).total_seconds()
+                
+                # 计算最大奖励分数（题目初始分数的10%）
+                max_bonus = int(challenge.initial_points * 0.1)
+                
+                # 分段函数实现前期快速衰减
+                time_ratio = max(0, min(1, time_elapsed / competition_duration))
+                if time_ratio < 0.25:
+                    bonus_ratio = 1.0 - (0.7 * time_ratio / 0.25)
+                else:
+                    # 剩余时间从30%降到0%
+                    bonus_ratio = 0.3 * (1.0 - (time_ratio - 0.25) / 0.75)
+                time_bonus = int(max_bonus * bonus_ratio)
+                # 基于解题数量的奖励
+                solve_count = challenge.solves
+                
+                # 设置顺序奖励
+                # 首个解题：额外奖励等于最大奖励
+                # 第二个解题：额外奖励为最大奖励的50%
+                # 第三个解题：额外奖励为最大奖励的30%
+                if solve_count == 0:  # 这是第一个解出的
+                    order_bonus = max_bonus 
+                elif solve_count == 1:  # 第二个解出
+                    order_bonus = int(max_bonus * 0.5)
+                elif solve_count == 2:  # 第三个解出
+                    order_bonus = int(max_bonus * 0.3)
+                elif solve_count < 10:  # 前10名还有少量奖励
+                    order_bonus = int(max_bonus * 0.1)
+                else:
+                    order_bonus = 0
+                total_bonus = time_bonus + order_bonus
+                total_points = points_earned + total_bonus
                 # 更新提交记录的得分
-                submission.points_earned = points_earned
+                submission.points_earned = total_points
                 submission.save()
                 
                 score_user, _ = ScoreUser.objects.get_or_create(
@@ -377,9 +413,11 @@ def verify_flag(request, slug):
                     defaults={'points': 0}
                 )
                  
-                score_user.update_score(points_earned)
+                score_user.update_score(total_points)
                 score_user.solved_challenges.add(challenge)
-     
+    
+                cache_key = f'user_ctf_stats:{user.id}:{competition.id}'
+                cache.delete(cache_key)
                 # 如果是团队赛，更新团队分数
                 if competition.competition_type == Competition.TEAM:
                     score_team, _ = ScoreTeam.objects.get_or_create(
@@ -387,29 +425,22 @@ def verify_flag(request, slug):
                         competition=competition,
                         defaults={'score': 0}
                     )
-                    score_team.update_score(points_earned)
+                    score_team.update_score(total_points)
                     score_team.solved_challenges.add(challenge)
                     
                     # 更新一血信息
-                    if not challenge.first_blood_user:
-                        challenge.first_blood_user = user
-                        challenge.first_blood_time = timezone.now()
-                        challenge.save()
                     
                     return JsonResponse({
                         'status': 'success',
-                        'message': f'恭喜！Flag 正确，您的队伍获得 {points_earned} 分'
+                        'is_docker': is_docker,
+                        'message': f'恭喜！Flag 正确，您的队伍获得 {points_earned} 分, 解题速度奖励 {total_bonus} 分'
                     })
                 else:
                     # 更新一血信息
-                    if not challenge.first_blood_user:
-                        challenge.first_blood_user = user
-                        challenge.first_blood_time = timezone.now()
-                        challenge.save()
-                    
                     return JsonResponse({
                         'status': 'success',
-                        'message': f'恭喜！Flag 正确，获得 {points_earned} 分'
+                        'is_docker': is_docker,
+                        'message': f'恭喜！Flag 正确，获得 {points_earned} 分, 解题速度奖励 {total_bonus} 分'
                     })
             
             # flag验证失败
@@ -436,7 +467,7 @@ def challenge_detail(request, slug, uuid):
 
     super_user = request.user.is_superuser or request.user.is_staff
     if super_user:
-            messages.info(request, "您是管理员，可以对题目进行测试")
+        messages.info(request, "您是管理员，可以对题目进行测试")
     if challenge not in competition.challenges.all():
         messages.warning(request, "该题目不属于当前比赛")
         return redirect('public:competition_detail', slug=slug)
@@ -452,9 +483,6 @@ def challenge_detail(request, slug, uuid):
             return redirect('public:competition_detail', slug=slug)
         
         
-        
-                
-
 
     # 检查访问权限
     if not competition.is_running() and not super_user:
@@ -468,9 +496,16 @@ def challenge_detail(request, slug, uuid):
         messages.warning(request, "该题目当前未启用，暂时无法访问")
         return redirect('public:competition_detail', slug=slug)
 
+
+    file_url = None
+    if challenge.static_files and (competition.is_running() or super_user):
+        file_url = challenge.static_files.get_file_url()
+
     context = {
         'challenge': challenge,
-        'competition': competition,  # 添加相关比赛到上下文
+        'competition': competition,
+        'file_url': file_url,
+        'super_user': super_user,
     }
     return render(request, 'public/tags/challenge_detail.html', context)
 

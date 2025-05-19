@@ -112,11 +112,15 @@ class TeamAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        # 在选择队长时，过滤掉已经是其他队伍队长的用户
+    # 在选择队长时，过滤掉已经是其他队伍队长的用户
         if db_field.name == "leader":
-            kwargs["queryset"] = User.objects.exclude(
-                led_teams__competition=request.GET.get('competition')
-            )
+            competition_id = request.GET.get('competition')
+            if competition_id:
+                # 如果有指定比赛，只排除该比赛中已经是队长的用户
+                kwargs["queryset"] = User.objects.exclude(
+                    led_teams__competition_id=competition_id
+                )
+            # 如果没有指定比赛，不做特殊过滤
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_form(self, request, obj=None, **kwargs):

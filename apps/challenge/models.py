@@ -50,6 +50,13 @@ class StaticFile(models.Model):
         blank=True,
         default=None
     )
+
+
+    def get_file_url(self):
+        if self.file:
+            return self.file.url
+
+        return None
     
     class Meta:
         verbose_name = "题目附件管理"
@@ -115,7 +122,7 @@ class DockerCompose(models.Model):
     )
     
     class Meta:
-        verbose_name = "DockerCompose配置"
+        verbose_name = "容器镜像管理"
         verbose_name_plural = verbose_name
         
     def __str__(self):
@@ -213,7 +220,7 @@ class Challenge(models.Model):
     minimum_points = models.IntegerField(default=100, verbose_name="最低分数")
     points = models.IntegerField(default=500, verbose_name="当前分数")
     solves = models.IntegerField(default=0, verbose_name="解决次数")
-    flag_template = models.CharField(max_length=255, verbose_name="Flag模板", default='flag{{{uuid}_{user}_{prefix}_{hash}}}',help_text="用于生成动态Flag的模板")
+    flag_template = models.CharField(max_length=255, verbose_name="Flag值", blank=True, null=True,help_text="静态的FLAG值的模板")
     static_files = models.ForeignKey(
         StaticFile,
         on_delete=models.SET_NULL,
@@ -223,8 +230,6 @@ class Challenge(models.Model):
         help_text="选择要使用的题目附件"
     )
     
-    
-    
     docker_compose = models.ForeignKey(
         DockerCompose,
         on_delete=models.SET_NULL,
@@ -233,15 +238,6 @@ class Challenge(models.Model):
         verbose_name="容器配置",
         help_text="选择Docker容器配置"
     )
-    first_blood_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL, 
-        null=True,
-        blank=True,
-        related_name='first_blood_challenges',
-        verbose_name="首次解决用户"
-    )
-    first_blood_time = models.DateTimeField(null=True, blank=True, verbose_name="首次解决时间")
     hint = models.TextField(blank=True, null=True, verbose_name="提示")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
@@ -252,8 +248,8 @@ class Challenge(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "题目"
-        verbose_name_plural = "题目"
+        verbose_name = "题目管理"
+        verbose_name_plural = "题目管理"
 
     def __str__(self):
         tag_names = ', '.join([tag.name for tag in self.tags.all()]) if self.tags.exists() else '无标签'
