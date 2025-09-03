@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import sys
+
+from apps.public.utils import site_domain
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,7 +36,7 @@ LOGIN_REDIRECT_URL = "/"
 # Email setting
 # 注册中邮件验证方法:“强制（mandatory）”,“可选（optional）【默认】”或“否（none）”之一。
 # 开启邮箱验证的话，如果邮箱配置不可用会报错，所以默认关闭，根据需要自行开启
-ACCOUNT_EMAIL_VERIFICATION = os.getenv('SNOW_ACCOUNT_EMAIL_VERIFICATION', 'none')
+ACCOUNT_EMAIL_VERIFICATION = os.getenv('SNOW_ACCOUNT_EMAIL_VERIFICATION', 'optional')
 # 登录方式，选择用户名或者邮箱都能登录
 
 # 设置用户注册的时候必须填写邮箱地址
@@ -85,6 +87,9 @@ INSTALLED_APPS = [
     'django_celery_beat', 
     
 ]
+
+#修复可能的CSRF问题   
+CSRF_TRUSTED_ORIGINS = [os.getenv('SNOW_CSRF_TRUSTED_ORIGINS', 'http://localhost:8000')]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

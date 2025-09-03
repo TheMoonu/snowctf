@@ -169,6 +169,7 @@ def site_full_url():
     """
     protocol = site_protocol()
     domain = site_domain()
+    print('{}://{}'.format(protocol, domain))
     return '{}://{}'.format(protocol, domain)
 
 from django.core.cache import cache
