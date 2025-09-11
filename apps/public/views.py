@@ -393,10 +393,10 @@ def verify_flag(request, slug):
                 if solve_count == 0:  # 这是第一个解出的
                     order_bonus = max_bonus 
                 elif solve_count == 1:  # 第二个解出
-                    order_bonus = int(max_bonus * 0.5)
+                    order_bonus = int(max_bonus * 0.6)
                 elif solve_count == 2:  # 第三个解出
                     order_bonus = int(max_bonus * 0.3)
-                elif solve_count < 10:  # 前10名还有少量奖励
+                elif 3 <= solve_count < 10: # 前10名还有少量奖励 
                     order_bonus = int(max_bonus * 0.1)
                 else:
                     order_bonus = 0
@@ -433,14 +433,14 @@ def verify_flag(request, slug):
                     return JsonResponse({
                         'status': 'success',
                         'is_docker': is_docker,
-                        'message': f'恭喜！Flag 正确，您的队伍获得 {points_earned} 分, 解题速度奖励 {total_bonus} 分'
+                        'message': f'恭喜！Flag 正确，您的队伍题目剩余 {points_earned} 分, 解题速度奖励 {total_bonus} 分, 总得分 {total_points} 分'
                     })
                 else:
                     # 更新一血信息
                     return JsonResponse({
                         'status': 'success',
                         'is_docker': is_docker,
-                        'message': f'恭喜！Flag 正确，获得 {points_earned} 分, 解题速度奖励 {total_bonus} 分'
+                        'message': f'恭喜！Flag 正确，获得 {points_earned} 分, 解题速度奖励 {total_bonus} 分, 总得分 {total_points} 分'
                     })
             
             # flag验证失败
@@ -1045,6 +1045,225 @@ def refresh_captcha(request):
     return JsonResponse({'success': False, 'message': '非法请求'}, status=400)
 
 
+class SubmissionDynamicView(TemplateView):
+    """解题动态视图 - 表格形式展示解题情况"""
+    template_name = 'public/submission_dynamic.html'
+
+    @method_decorator(cache_page(10))  # 缓存10秒
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['slug']
+
+        # 获取比赛
+        competition = get_object_or_404(Competition, slug=slug)
+        context['competition'] = competition
+
+        # 获取所有正确的提交
+        submissions = Submission.objects.filter(
+            competition=competition,
+            status='correct'
+        ).select_related(
+            'challenge',
+            'user',
+            'team'
+        ).order_by('created_at')
+
+        # 题目列表（横向表头）
+        challenges = list(competition.challenges.all().order_by('id'))
+
+        context['challenges'] = challenges
+
+        # 队伍/个人列表（纵向表头）
+        players = {}
+        for s in submissions:
+            team_name = s.team.name if s.team else s.user.username
+            if team_name not in players:
+                players[team_name] = {
+                    'name': team_name,
+                    'submissions': {}
+                }
+
+        # 计算每个题目的排名（谁是第 1、2、3 血）
+        first_solves = {}  # {challenge_id: [user1, user2, user3]}
+        for s in submissions:
+            cid = s.challenge.id
+            solver = s.team.name if s.team else s.user.username
+            if cid not in first_solves:
+                first_solves[cid] = []
+            if solver not in first_solves[cid]:
+                first_solves[cid].append(solver)
+
+        # 填充表格数据
+        for s in submissions:
+            cid = s.challenge.id
+            solver = s.team.name if s.team else s.user.username
+
+            if cid in first_solves and solver in first_solves[cid]:
+                rank = first_solves[cid].index(solver) + 1  # 1,2,3 血
+                if rank == 1:
+                    status = "一血"
+                elif rank == 2:
+                    status = "二血"
+                elif rank == 3:
+                    status = "三血"
+                else:
+                    status = "已解决"
+            else:
+                status = "已解决"
+
+            players[solver]['submissions'][cid] = status
+
+        context['players'] = players.values()
+        return context
+
+
+
+class SubmissionDynamicView_test(TemplateView):
+    """解题动态视图 - 展示所有解题记录"""
+    template_name = 'public/submission_dynamic.html'
+    
+    @method_decorator(cache_page(30))  # 缓存30秒
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['slug']
+        
+        competition = get_object_or_404(Competition, slug=slug)
+        context['competition'] = competition
+        
+        # 获取解题动态数据
+        submissions = Submission.objects.filter(
+            competition=competition,
+            status='correct'  # 只显示正确的提交
+        ).select_related(
+            'challenge', 
+            'user', 
+            'team'
+        ).order_by('-created_at')[:100]  # 显示最近100条
+        
+        # 处理提交数据，添加是否一血信息
+        submission_data = []
+        for submission in submissions:
+            # 检查是否是一血
+            is_first_blood = not Submission.objects.filter(
+                challenge=submission.challenge,
+                competition=competition,
+                status='correct',
+                created_at__lt=submission.created_at
+            ).exists()
+            
+            submission_data.append({
+                'submission': submission,
+                'is_first_blood': is_first_blood,
+                'submission_time': submission.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'team_name': submission.team.name if submission.team else '个人参赛',
+                'user_name': submission.user.username,
+                'challenge_title': submission.challenge.title,
+                'points_earned': submission.points_earned,
+                'category': submission.challenge.category if hasattr(submission.challenge, 'category') else '其他'
+            })
+        
+        context['submission_data'] = submission_data
+        context['total_submissions'] = len(submission_data)
+        print(context['submission_data'])
+        return context
+
+
+@method_decorator(cache_page(30), name='dispatch')
+class SubmissionDynamicAPIView(generic.View):
+    """解题动态API视图 - 提供JSON格式的解题数据"""
+    
+    def get(self, request, slug):
+        """获取解题动态API数据"""
+        competition = get_object_or_404(Competition, slug=slug)
+        
+        # 获取分页参数
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 20))
+        
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 获取解题动态数据
+        submissions = Submission.objects.filter(
+            competition=competition,
+            status='correct'
+        ).select_related(
+            'challenge', 
+            'user', 
+            'team'
+        ).order_by('-created_at')[offset:offset + page_size]
+        
+        # 构建响应数据
+        data = []
+        for submission in submissions:
+            is_first_blood = not Submission.objects.filter(
+                challenge=submission.challenge,
+                competition=competition,
+                status='correct',
+                created_at__lt=submission.created_at
+            ).exists()
+            
+            data.append({
+                'id': submission.id,
+                'challenge': {
+                    'id': submission.challenge.id,
+                    'title': submission.challenge.title,
+                    'category': submission.challenge.category if hasattr(submission.challenge, 'category') else '其他',
+                    'points': submission.challenge.points
+                },
+                'user': {
+                    'id': submission.user.id,
+                    'username': submission.user.username,
+                    'display_name': submission.user.get_full_name() or submission.user.username
+                },
+                'team': {
+                    'id': submission.team.id if submission.team else None,
+                    'name': submission.team.name if submission.team else '个人参赛'
+                },
+                'submission_time': submission.created_at.isoformat(),
+                'formatted_time': submission.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'points_earned': submission.points_earned,
+                'is_first_blood': is_first_blood,
+                'relative_time': self.get_relative_time(submission.created_at)
+            })
+        
+        # 获取总数用于分页
+        total_count = Submission.objects.filter(
+            competition=competition,
+            status='correct'
+        ).count()
+        
+        return JsonResponse({
+            'data': data,
+            'pagination': {
+                'page': page,
+                'page_size': page_size,
+                'total': total_count,
+                'pages': (total_count + page_size - 1) // page_size
+            }
+        })
+    
+    def get_relative_time(self, dt):
+        """获取相对时间描述"""
+        now = timezone.now()
+        diff = now - dt
+        
+        if diff.days > 0:
+            return f"{diff.days}天前"
+        elif diff.seconds > 3600:
+            return f"{diff.seconds // 3600}小时前"
+        elif diff.seconds > 60:
+            return f"{diff.seconds // 60}分钟前"
+        else:
+            return "刚刚"
+
+
 class RankingsView(TemplateView):
     template_name = 'public/rankings.html'
     
@@ -1054,10 +1273,10 @@ class RankingsView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        competition_id = self.kwargs['competition_id']
+        slug = self.kwargs['slug']
         ranking_type = self.kwargs['ranking_type']
         
-        competition = get_object_or_404(Competition, id=competition_id)
+        competition = get_object_or_404(Competition, slug=slug)
         context['competition'] = competition
         
         if ranking_type == 'individual':

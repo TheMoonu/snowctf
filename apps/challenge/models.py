@@ -59,7 +59,7 @@ class StaticFile(models.Model):
         return None
     
     class Meta:
-        verbose_name = "题目附件管理"
+        verbose_name = "附件管理"
         verbose_name_plural = verbose_name
         
     def __str__(self):
@@ -122,7 +122,7 @@ class DockerCompose(models.Model):
     )
     
     class Meta:
-        verbose_name = "容器镜像管理"
+        verbose_name = "镜像管理"
         verbose_name_plural = verbose_name
         
     def __str__(self):
@@ -218,9 +218,9 @@ class Challenge(models.Model):
     flag_type = models.CharField(max_length=20, choices=FLAG_TYPE_CHOICES, default='DYNAMIC', verbose_name="Flag类型")
     initial_points = models.IntegerField(default=500, verbose_name="初始分数")
     minimum_points = models.IntegerField(default=100, verbose_name="最低分数")
-    points = models.IntegerField(default=500, verbose_name="当前分数")
+    points = models.IntegerField(default=0, verbose_name="剩余分数")
     solves = models.IntegerField(default=0, verbose_name="解决次数")
-    flag_template = models.CharField(max_length=255, verbose_name="Flag值", blank=True, null=True,help_text="静态的FLAG值的模板")
+    flag_template = models.CharField(max_length=255, verbose_name="Flag值", blank=True, null=True,help_text="静态Flag值")
     static_files = models.ForeignKey(
         StaticFile,
         on_delete=models.SET_NULL,
@@ -248,8 +248,8 @@ class Challenge(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "题目管理"
-        verbose_name_plural = "题目管理"
+        verbose_name = "创建题目"
+        verbose_name_plural = "创建题目"
 
     def __str__(self):
         tag_names = ', '.join([tag.name for tag in self.tags.all()]) if self.tags.exists() else '无标签'
@@ -268,8 +268,11 @@ class Challenge(models.Model):
     # 如果没有关联的比赛，可以返回到挑战列表页面
         return reverse('public:challenge_list')  # 假设有这个URL
 
+    
     def save(self, *args, **kwargs):
         self.description = escape_xss(self.description)
+        if self._state.adding:  # 判断是创建对象还是更新对象
+            self.points = self.initial_points 
         #self.hint = sanitize_html(self.hint)
         super().save(*args, **kwargs)
     

@@ -3,20 +3,22 @@ from .models import Challenge, Tag, StaticFile, DockerCompose
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Count
+from .forms import ChallengeForm
 
 @admin.register(Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
+    form = ChallengeForm
     list_display = ('title', 'category', 'difficulty', 'points', 'solves', 
                    'is_practice', 'is_active', 'is_top', 'created_at', 'author')
-    list_filter = ('category', 'difficulty','is_practice', 'is_active', 'is_top')
+    list_filter = ('category', 'difficulty', 'is_practice', 'is_active', 'is_top')
     search_fields = ('title', 'description')
-    readonly_fields = ('uuid', 'solves', 'created_at', 'updated_at')
-    filter_horizontal = ('tags', )
+    readonly_fields = ('uuid', 'solves', 'points', 'created_at', 'updated_at')
+    filter_horizontal = ('tags',)
     date_hierarchy = 'created_at'
     
     fieldsets = (
         ('基本信息', {
-            'fields': ('title', 'description', 'category', 'difficulty', 'points', 'tags', 'is_top')
+            'fields': ('title', 'description', 'category', 'difficulty', 'tags', 'is_top')
         }),
         ('Flag配置', {
             'fields': ('flag_type', 'flag_template')
@@ -25,15 +27,19 @@ class ChallengeAdmin(admin.ModelAdmin):
             'fields': ('static_files', 'docker_compose')
         }),
         ('其他信息', {
-            'fields': ('hint', 'is_active', 'is_practice','author')
+            'fields': ('hint', 'is_active', 'is_practice', 'author')
         }),
-        ('统计信息', {
-            'fields': ('solves', 'initial_points','minimum_points'),
+        ('分数信息（首次创建后不能修改）', {
+            'fields': ('solves', 'initial_points', 'minimum_points', 'points'),
             'classes': ('collapse',)
         })
     )
 
+
+        
+
     def save_model(self, request, obj, form, change):
+
         if not change:  # 如果是新建，设置作者
             obj.author = request.user
         super().save_model(request, obj, form, change)

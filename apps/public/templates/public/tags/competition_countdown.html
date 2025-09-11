@@ -1,67 +1,39 @@
 <div class="card border-0 rounded-6 px-3 mb-2 mb-md-3">
-    
-    <div class="card-body px-0 pt-3">
+    <div class="card-body px-2 py-3">
         {% if competition %}
-            <div>
-             
-
-                <div class="comp-time-info">
-                    {% if competition_status == 'upcoming' %}
-                        <div class="countdown-container" data-start-time="{{ competition.start_time|date:'Y/m/d H:i:s' }}">
-                            <div class="countdown-label">距离开始还有</div>
-                            <div class="countdown-blocks">
-                                <div class="time-item">
-                                    <span class="time-value days">00</span>
-                                    <span class="time-label">天</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value hours">00</span>
-                                    <span class="time-label">时</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value minutes">00</span>
-                                    <span class="time-label">分</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value seconds">00</span>
-                                    <span class="time-label">秒</span>
-                                </div>
-                            </div>
-                        </div>
-                    {% elif competition_status == 'ongoing' %}
-                        <div class="countdown-container" data-end-time="{{ competition.end_time|date:'Y/m/d H:i:s' }}">
-                            <div class="countdown-label">距离结束还有</div>
-                            <div class="countdown-blocks">
-                                <div class="time-item">
-                                    <span class="time-value days">00</span>
-                                    <span class="time-label">天</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value hours">00</span>
-                                    <span class="time-label">时</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value minutes">00</span>
-                                    <span class="time-label">分</span>
-                                </div>
-                                <div class="time-item">
-                                    <span class="time-value seconds">00</span>
-                                    <span class="time-label">秒</span>
-                                </div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="comp-time-range">
-                            <div class="time-range-label">比赛时间</div>
-                            <div class="time-range-value">
-                                {{ competition.start_time|date:"Y-m-d H:i" }} 至 {{ competition.end_time|date:"Y-m-d H:i" }}
-                            </div>
-                        </div>
-                    {% endif %}
+            {% if competition_status == 'upcoming' %}
+                <div class="comp-countdown-flex">
+                    <span class="comp-status-badge">
+                        <i class="fa fa-clock-o"></i> 即将开始
+                    </span>
+                    <div class="comp-timer-wrapper" data-start-time="{{ competition.start_time|date:'Y/m/d H:i:s' }}" title="距离比赛开始还有" data-toggle="tooltip" data-placement="top">
+                        <span class="comp-time-group"><span class="comp-time-block days">02</span>天</span>
+                        <span class="comp-time-group"><span class="comp-time-block hours">03</span>时</span>
+                        <span class="comp-time-group"><span class="comp-time-block minutes">10</span>分</span>
+                        <span class="comp-time-group"><span class="comp-time-block seconds">44</span>秒</span>
+                    </div>
                 </div>
-            </div>
+            {% elif competition_status == 'ongoing' %}
+                <div class="comp-countdown-flex">
+                    <span class="comp-status-badge comp-status-ongoing">
+                        <i class="fa fa-play-circle"></i> 进行中
+                    </span>
+                    <div class="comp-timer-wrapper" data-end-time="{{ competition.end_time|date:'Y/m/d H:i:s' }}" title="距离比赛结束还有" data-toggle="tooltip" data-placement="top">
+                        <span class="comp-time-group"><span class="comp-time-block days">02</span>天</span>
+                        <span class="comp-time-group"><span class="comp-time-block hours">03</span>时</span>
+                        <span class="comp-time-group"><span class="comp-time-block minutes">10</span>分</span>
+                        <span class="comp-time-group"><span class="comp-time-block seconds">44</span>秒</span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="comp-countdown-flex">
+                    <span class="comp-status-badge comp-status-ended">
+                        <i class="fa fa-check-circle"></i> 比赛已结束
+                    </span>
+                </div>
+            {% endif %}
         {% else %}
-            <div class="text-center text-muted py-4">
+            <div class="text-center text-muted py-2">
                 暂无比赛信息
             </div>
         {% endif %}
@@ -69,139 +41,82 @@
 </div>
 
 <style>
-.comp-status-card {
-    background: linear-gradient(145deg, #ffffff, #f5f7fa);
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.comp-header {
+/* 比赛倒计时 */
+.comp-countdown-flex {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.comp-title {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.3;
-    word-break: break-all;
-}
-
-.comp-title a {
-    color: #2c3e50;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.comp-title a:hover {
-    color: #007bff;
-}
-
-.comp-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.comp-badge.upcoming {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: #007bff;
-}
-
-.comp-badge.ongoing {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-}
-
-.comp-badge.ended {
-    background-color: rgba(108, 117, 125, 0.1);
-    color: #6c757d;
-}
-
-.countdown-container {
-    text-align: center;
-}
-
-.countdown-label {
-    color: #6c757d;
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-.countdown-blocks {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
     width: 100%;
 }
 
-.time-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: auto;
+.comp-status-badge {
+    background-color: #e6efff;
+    color: #4775FF;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
 }
 
-.time-value {
-    background: linear-gradient(145deg, #3091f1, #1c87fa);
-    color: white;
-    padding: 6px 8px;
-    border-radius: 8px;
+.comp-status-ongoing {
+    background-color: #e3fcef;
+    color: #10b981;
+}
+
+.comp-status-ended {
+    background-color: #e6efff;
+    color: #4775FF;
+}
+
+.comp-timer-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: default;
+}
+
+.comp-time-group {
+    font-size: 13px;
+    color: #666;
+    
+    white-space: nowrap;
+}
+
+.comp-time-block {
+    display: inline-block;
+    background-color: #e6f0ff;
+    color: #333;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
     font-size: 16px;
     font-weight: 600;
-    min-width: 35px;
-    display: inline-block;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    line-height: 32px;
+    margin-right: 2px;
 }
 
-.time-label {
-    margin-top: 3px;
-    color: #6c757d;
-    font-size: 11px;
-}
-
-.comp-time-range {
-    text-align: center;
-    color: #6c757d;
-}
-
-.time-range-label {
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.time-range-value {
-    font-size: 14px;
-    color: #2c3e50;
-}
-
-@media (max-width: 340px) {
-    .comp-status-card {
-        padding: 10px;
+@media (max-width: 400px) {
+    .comp-countdown-flex {
+        flex-direction: column;
+        gap: 8px;
     }
     
-    .time-value {
-        font-size: 14px;
-        min-width: 30px;
-        padding: 4px 6px;
-    }
-    
-    .countdown-blocks {
-        gap: 5px;
+    .comp-timer-wrapper {
+        justify-content: center;
     }
 }
+/* 结束 */
+
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 初始化Bootstrap工具提示
+    $('[data-toggle="tooltip"]').tooltip();
+    
     function updateCountdown(timerElement) {
         const startTime = timerElement.dataset.startTime;
         const endTime = timerElement.dataset.endTime;
@@ -234,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return setInterval(update, 1000);
     }
 
-    document.querySelectorAll('.countdown-container').forEach(timer => {
+    document.querySelectorAll('.comp-timer-wrapper').forEach(timer => {
         updateCountdown(timer);
     });
 });

@@ -600,9 +600,10 @@ input[name="captcha"] {
 /* 标签切换按钮 */
 .ctf-tab-group {
     display: flex;
-    border-radius: 8px;
+    border-radius: 5px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #ffffff;
+    
 }
 
 .ctf-tab-btn {
@@ -1081,3 +1082,7 @@ input[name="captcha"] {
 .custom-toast.removing {
     box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
+
+
+
+

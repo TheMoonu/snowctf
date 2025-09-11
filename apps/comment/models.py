@@ -128,7 +128,7 @@ class ChallengeComment(Comment):
         
         return f"{challenge_url}#com-{self.id}"
     class Meta:
-        verbose_name = '题目评论'
+        verbose_name = '评论管理'
         verbose_name_plural = verbose_name
         ordering = ['create_date']
 

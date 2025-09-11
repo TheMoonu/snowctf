@@ -56,7 +56,7 @@ class DashboardService:
         if self.competition.competition_type == 'team':
             scores = ScoreTeam.objects.filter(
                 competition=self.competition
-            ).select_related('team').order_by('-score')[:10]
+            ).select_related('team').order_by('score')[:10]
             
             leaderboard = [{
                 'name': score.team.name,
@@ -74,7 +74,7 @@ class DashboardService:
         else:
             scores = ScoreUser.objects.filter(
                 competition=self.competition
-            ).select_related('user').order_by('-points')[:10]
+            ).select_related('user').order_by('points')[:10]
             
             leaderboard = [{
                 'name': score.user.username,

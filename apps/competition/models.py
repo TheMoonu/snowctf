@@ -56,7 +56,7 @@ class Competition(models.Model):
     )
 
     class Meta:
-        verbose_name = "竞赛配置"
+        verbose_name = "比赛创建"
         verbose_name_plural = verbose_name
         ordering = ['-start_time']  # 按开始时间倒序排序
 
@@ -94,7 +94,10 @@ class Competition(models.Model):
 
         # 处理slug
         if not self.re_slug:
-            self.re_slug = self.generate_random_slug()
+            self.re_slug = self.generate_random_re_slug()
+        
+        if not self.slug:
+            self.slug = self.generate_random_slug()
 
         if self.slug and not self.slug.isalnum():
             raise ValueError('只能是数字及字母组成')
@@ -130,9 +133,13 @@ class Competition(models.Model):
         # 设置新缓存
         cache.set(cache_key, competition_data, timeout=cache_timeout)
 
-    def generate_random_slug(self):
+    def generate_random_re_slug(self):
         """生成随机slug"""
         return ''.join(random.choices(string.ascii_letters, k=10))
+    
+    def generate_random_slug(self):
+        """生成随机slug"""
+        return ''.join(random.choices(string.ascii_letters, k=12))
 
     def get_competition_url(self):
         """生成比赛的页面URL"""
@@ -179,7 +186,7 @@ class Team(models.Model):
     competition = models.ForeignKey('Competition', related_name='competition_teams', on_delete=models.CASCADE, default=None, blank=True,verbose_name="所属比赛")  # 添加比赛字段
 
     class Meta:
-        verbose_name = "队伍"
+        verbose_name = "比赛队伍"
         verbose_name_plural = verbose_name
         unique_together = ('name', 'competition')  # 确保队伍名称在同一比赛中唯一
 
@@ -196,7 +203,7 @@ class ScoreTeam(models.Model):
     solved_challenges = models.ManyToManyField('challenge.Challenge', default=None, blank=True, verbose_name="全队已解决的挑战")
 
     class Meta:
-        verbose_name = "队伍计分"
+        verbose_name = "团队排名"
         verbose_name_plural = verbose_name
 
     def update_score(self, points_to_add):
@@ -225,7 +232,7 @@ class ScoreUser(models.Model):
     created_at = models.DateTimeField('得分时间', auto_now_add=True)
 
     class Meta:
-        verbose_name = "个人计分"
+        verbose_name = "个人排名"
         verbose_name_plural = verbose_name
         unique_together = ('team', 'user', 'competition')
 
@@ -271,8 +278,8 @@ class Registration(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)   # 报名时间
 
     class Meta:
-        verbose_name = "报名信息"
-        verbose_name_plural = "报名信息"
+        verbose_name = "比赛报名"
+        verbose_name_plural = "比赛报名"
 
   
 
@@ -324,7 +331,7 @@ class Submission(models.Model):
     points_earned = models.IntegerField('获得分数', default=0)
     
     class Meta:
-        verbose_name = "提交记录"
+        verbose_name = "解题日志"
         verbose_name_plural = verbose_name
         ordering = ['-created_at']
         indexes = [

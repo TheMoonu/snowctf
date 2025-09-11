@@ -477,3 +477,10 @@ def get_third_blood(challenge, competition=None ):
         third_blood_info = third_blood.user.username if third_blood else '暂无'
 
     return third_blood_info
+
+@register.filter
+def dict_get(dictionary, key):
+    """获取字典中的值，如果键不存在则返回None"""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key)
+    return None

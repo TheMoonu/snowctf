@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 from .views import (challenge_detail,create_web_container,remove_container,
     verify_flag,destroy_web_container,check_container_status,delete_challenge,
-    CompetitionViewList,Competition_detail,registrationView,RankingsView,competition_dashboard,get_dashboard_data,refresh_captcha)
+    CompetitionViewList,Competition_detail,registrationView,RankingsView,competition_dashboard,get_dashboard_data,refresh_captcha,SubmissionDynamicView, SubmissionDynamicAPIView)
 
 urlpatterns = [
     path('',CompetitionViewList,name='CompetitionView'),  # 主页，自然排序
@@ -20,5 +20,8 @@ urlpatterns = [
     path('api/v1/refresh-captcha/', refresh_captcha, name='refresh_captcha'),
     path('<slug:slug>/', Competition_detail.as_view(), name='competition_detail'),
     
-    path('rankings/<int:competition_id>/<str:ranking_type>/', RankingsView.as_view(), name='rankings'),
+    path('rankings/<slug:slug>/<str:ranking_type>/', RankingsView.as_view(), name='rankings'),
+
+    path('<slug:slug>/submissions/', SubmissionDynamicView.as_view(), name='submission_dynamic'),
+    path('api/v1/<slug:slug>/submissions/', SubmissionDynamicAPIView.as_view(), name='submission_dynamic_api'),
 ]

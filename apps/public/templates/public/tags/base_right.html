@@ -12,23 +12,23 @@
             <div class="col">
 
                
-                <a href="https://github.com/TheMoonu/snowctf" title="网站源码">
-                    <img style="max-width:40px" alt="网站源码" src="{% static 'public/img/github.png' %}">
-                    <p class="mt-2">网站源码</p>
+                <a href="{% url 'public:submission_dynamic' competition.slug %}" title="解题动态">
+                    <img style="max-width:40px" alt="解题动态" src="{% static 'public/img/tougao.png' %}">
+                    <p class="mt-2">解题动态</p>
                 </a>
 
               
             </div>
             <div class="col">
-                <a href="https://www.secsnow.cn/snowlab/" target="_blank" title="查看解题记录">
-                    <img style="max-width:40px" alt="漏洞靶场" src="{% static 'public/img/blog.png' %}">
-                    <p class="mt-2">漏洞靶场</p>
+                <a href="{% url 'public:rankings' competition.slug 'individual' %}" target="_blank" title="查看解题记录">
+                    <img style="max-width:40px" alt="排行榜" src="{% static 'public/img/blog.png' %}">
+                    <p class="mt-2">排行榜</p>
                 </a>
             </div>
             <div class="col">
                 <a href="{% url 'public:competition_dashboard' competition.slug %}" target="_blank" title="实时数据">
                     <img style="max-width:40px" alt="实时数据" src="{% static 'public/img/wpzx.png' %}">
-                    <p class="mt-2">实时数据</p>
+                    <p class="mt-2">数据大屏</p>
                 </a>
             </div>
         </div>
@@ -104,7 +104,7 @@
 <div class="card border-0 rounded-6 px-3 mb-2 mb-md-3">
     <div class="card-header bg-none px-0 d-flex justify-content-between align-items-center">
         <strong><i class="fa fa-user-circle mr-2 f-17"></i>个人排行</strong>
-        <a href="{% url 'public:rankings' competition.id 'individual' %}" class="more-link">
+        <a href="{% url 'public:rankings' competition.slug 'individual' %}" class="more-link">
             更多<i class="fa fa-angle-right ml-1"></i>
         </a>
     </div>
@@ -131,6 +131,14 @@
                 <div class="score ml-3 flex-shrink-0">{{ user.score }}</div>
             </div>
         </li>
+        {% empty %}
+            <div class="base-empty-state">
+                <div class="base-empty-icon">
+                    <i class="fa fa-puzzle-piece"></i>
+                </div>
+                <div class="base-empty-text">暂无排名数据</div>
+                
+            </div>
         {% endfor %}
     </ul>
 </div>
@@ -208,7 +216,7 @@
 <div class="card border-0 rounded-6 px-3 mb-2 mb-md-3">
     <div class="card-header bg-none px-0 d-flex justify-content-between align-items-center">
         <strong><i class="fa fa-users mr-2 f-17"></i>队伍排行</strong>
-        <a href="{% url 'public:rankings' competition.id 'team' %}" class="more-link">
+        <a href="{% url 'public:rankings' competition.slug 'team' %}" class="more-link">
             更多<i class="fa fa-angle-right ml-1"></i>
         </a>
     </div>
@@ -226,6 +234,14 @@
                 <div class="score ml-3 flex-shrink-0">{{ team.score }}</div>
             </div>
         </li>
+        {% empty %}
+            <div class="base-empty-state">
+                <div class="base-empty-icon">
+                    <i class="fa fa-puzzle-piece"></i>
+                </div>
+                <div class="base-empty-text">暂无排名数据</div>
+                
+            </div>
         {% endfor %}
     </ul>
 </div>
@@ -236,6 +252,22 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    .base-empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #a09e9e;
+    }
+    
+    .base-empty-icon {
+        font-size: 28px;
+        color: #ddd;
+        margin-bottom: 10px;
+    }
+
+    .base-empty-text {
+        font-size: 14px;
+        margin-bottom: 20px;
     }
 </style> 
 {% endif %}  

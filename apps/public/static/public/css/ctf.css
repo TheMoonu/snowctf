@@ -365,3 +365,20 @@
   margin-right: 8px;
 }
 /* 下拉菜单设置题目结束 */
+
+.point-display {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f7ff;
+  color: #3672b5;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.point-display i {
+  margin-right: 4px;
+  color: #f59e0b;
+}
+
+

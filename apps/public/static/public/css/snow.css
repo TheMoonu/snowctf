@@ -321,3 +321,101 @@
         gap: 6px;
     }
 }
+
+
+
+
+.team-info {
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+}
+.base-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #a09e9e;
+}
+
+.base-empty-icon {
+    font-size: 28px;
+    color: #ddd;
+    margin-bottom: 10px;
+}
+
+.base-empty-text {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+
+/* 比赛倒计时 */
+.comp-countdown-flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.comp-status-badge {
+    background-color: #e6efff;
+    color: #4775FF;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.comp-status-ongoing {
+    background-color: #e3fcef;
+    color: #10b981;
+}
+
+.comp-status-ended {
+    background-color: #e6efff;
+    color: #4775FF;
+}
+
+.comp-timer-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: default;
+}
+
+.comp-time-group {
+    font-size: 13px;
+    color: #666;
+    
+    white-space: nowrap;
+}
+
+.comp-time-block {
+    display: inline-block;
+    background-color: #e6f0ff;
+    color: #333;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 32px;
+    margin-right: 2px;
+}
+
+@media (max-width: 400px) {
+    .comp-countdown-flex {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .comp-timer-wrapper {
+        justify-content: center;
+    }
+}
+/* 结束 */
+
+
