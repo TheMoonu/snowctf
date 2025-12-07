@@ -18,8 +18,7 @@ PS：本开源项目为个人版，主要为个人或者小型团队提供CTF竞
 
 交流、学习、合作、专业版免费试用联系：qun：扣扣学习交流群517929458、邮箱：flechazo890@gmail.com
 
-## Saas竞赛服务
-当然如果您不想耗费时间、精力及金钱去搭建竞赛系统，[SECSNOW_竞赛中心](https://www.secsnow.cn/ctf/)提供了限时免费的Saas竞赛服务，用户可在平台自定义比赛，本平台提供比赛的容器服务，不需要在单独购买服务器，比赛创建者可对比赛进行任何形式的管理，包括报名、人员、队伍、赛题、作弊监测、计分及排名管理等。
+
 
 
 ## 动态分数算法
@@ -37,29 +36,47 @@ points = max(
 ## 界面介绍
 
 #### 数据大屏
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img801a18cc9b1fd1aa9ca7f7a29947ab8.png)
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/数据大屏.png)
 
-#### 主页面
+#### 比赛列表
 
-![主页面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228164549.png)
+![主页面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/比赛列表.png)
 
 #### 比赛界面
 
 ![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228164740.png)
 
-#### 答题界面
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228164944.png)
+#### 题目界面
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/比赛答题页面.png)
 
-#### 排行榜单
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228165320.png)
+#### 答题界面
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/容器下方打码.png)
 
 #### 自动化报名
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228170352.png)
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/报名系统.png)
 
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228170423.png)
+#### 解题动态
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/解题动态.png)
 
-#### 后台管理
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228170004.png)
+#### 前台比赛管理
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/前台比赛管理.png)
+
+#### 报名信息
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/报名信息.png)
+
+#### 创建题目
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/前台创建题目息.png)
+
+#### 简约版比赛界面
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/简约版比赛界面.png)
+
+#### 简约版答题界面
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/简约版答题界面.png)
+
+#### 个人信息页面
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/个人信息页面.png)
+
+
 
 
 ## 其它声明
