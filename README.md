@@ -13,7 +13,7 @@
 页面UI具体参考：[SECSNOW_V1.0](https://www.secsnow.cn/)
 
 
-交流、学习、合作、专业版免费试用联系：qun：扣扣学习交流群517929458、邮箱：flechazo890@gmail.com
+交流、学习、合作、竞赛功能免费安装联系：qun：扣扣学习交流群517929458、邮箱：flechazo890@gmail.com
 
 
 
