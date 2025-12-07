@@ -62,7 +62,7 @@ points = max(
 ![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/报名信息.png)
 
 #### 创建题目
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/前台创建题目息.png)
+![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/前台创建题目.png)
 
 #### 简约版比赛界面
 ![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/简约版比赛界面.png)
