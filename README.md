@@ -42,9 +42,6 @@ points = max(
 
 ![主页面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/比赛列表.png)
 
-#### 比赛界面
-
-![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/img20250228164740.png)
 
 #### 题目界面
 ![比赛界面](https://cdn.jsdelivr.net/gh/TheMoonu/TheMoonu/比赛答题页面.png)
