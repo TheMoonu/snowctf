@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# SecSnow网络安全综合学习平台 更新脚本
+# SecSnow网络安全综合学习平台 更新脚本 (优化版)
 # 用途：更新 SecSnow Web 服务到新版本
+# 支持：本地 tar 文件 / Docker Registry 拉取
 
 # 设置颜色输出
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # 配置变量
@@ -17,8 +19,12 @@ BASE_DIR="${INSTALL_DIR}/base"
 BACKUP_DIR="${INSTALL_DIR}/backups"
 
 # 版本信息
-VERSION="1.0.0"
+VERSION="2.0.0"
 UPDATE_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+# 更新模式
+UPDATE_MODE=""           # 更新模式: "local" 或 "registry"
+REGISTRY_IMAGE=""        # 完整镜像名称（包含tag），如：harbor.com/secsnow:v1.0.0
 
 # 显示步骤信息
 show_step() {
@@ -91,9 +97,26 @@ check_environment() {
     show_info "使用 Docker Compose 命令: $COMPOSE_CMD"
 }
 
-# 检查新镜像文件
-check_new_image() {
-    show_step "检查新版本镜像..."
+# 自动选择更新模式
+auto_select_update_mode() {
+    show_step "确定更新方式..."
+    
+    # 如果指定了镜像参数，使用 registry 模式
+    if [ -n "$REGISTRY_IMAGE" ]; then
+        UPDATE_MODE="registry"
+        show_success "更新模式: 从 Docker Registry 拉取"
+        show_info "目标镜像: $REGISTRY_IMAGE"
+        return
+    fi
+    
+    # 否则使用 local 模式
+    UPDATE_MODE="local"
+    show_success "更新模式: 从本地 tar 文件加载"
+}
+
+# 检查本地镜像文件
+check_local_image() {
+    show_step "检查本地镜像文件..."
     
     if [ ! -d "${BASE_DIR}" ]; then
         show_error "base 目录不存在: ${BASE_DIR}"
@@ -116,10 +139,46 @@ check_new_image() {
         show_error "未在 ${BASE_DIR} 目录找到新的 SecSnow 镜像文件 (secsnow*.tar)"
     fi
     
-    show_success "找到新镜像文件: $NEW_IMAGE_FILE"
+    show_success "找到镜像文件: $NEW_IMAGE_FILE"
     ls -lh "$NEW_IMAGE_FILE"
     
     export NEW_IMAGE_FILE
+}
+
+# 准备仓库镜像
+prepare_registry_image() {
+    show_step "准备 Docker Registry 镜像..."
+    
+    # 使用指定的镜像名称
+    NEW_IMAGE_NAME="$REGISTRY_IMAGE"
+    
+    show_success "目标镜像: $NEW_IMAGE_NAME"
+    
+    # 提取仓库地址（用于可能的登录）
+    local registry_host=""
+    if [[ "$REGISTRY_IMAGE" =~ ^([^/]+\.[^/]+)/ ]]; then
+        registry_host="${BASH_REMATCH[1]}"
+    fi
+    
+    # 询问是否需要登录
+    if [ -n "$registry_host" ]; then
+        echo ""
+        read -p "是否需要登录到 $registry_host ? (y/n): " -n 1 -r
+        echo
+        
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            show_info "登录到镜像仓库..."
+            docker login "$registry_host"
+            
+            if [ $? -ne 0 ]; then
+                show_error "登录失败"
+            fi
+            
+            show_success "登录成功"
+        fi
+    fi
+    
+    export NEW_IMAGE_NAME
 }
 
 # 备份当前数据
@@ -181,9 +240,20 @@ stop_services() {
     show_success "服务已停止"
 }
 
-# 加载新镜像
+# 加载或拉取新镜像
 load_new_image() {
-    show_step "加载新版本镜像..."
+    if [ "$UPDATE_MODE" = "local" ]; then
+        load_image_from_file
+    elif [ "$UPDATE_MODE" = "registry" ]; then
+        pull_image_from_registry
+    else
+        show_error "未知的更新模式: $UPDATE_MODE"
+    fi
+}
+
+# 从本地文件加载镜像
+load_image_from_file() {
+    show_step "从本地文件加载镜像..."
     
     cd "${BASE_DIR}" || show_error "无法进入 base 目录"
     
@@ -192,7 +262,7 @@ load_new_image() {
     show_info "当前镜像: ${OLD_IMAGE:-无}"
     
     # 加载新镜像
-    show_info "加载新镜像: ${NEW_IMAGE_FILE}..."
+    show_info "加载镜像文件: ${NEW_IMAGE_FILE}..."
     LOAD_OUTPUT=$(docker load -i "${NEW_IMAGE_FILE}" 2>&1)
     
     if [ $? -eq 0 ]; then
@@ -201,7 +271,7 @@ load_new_image() {
         if [ -z "$NEW_IMAGE_NAME" ]; then
             NEW_IMAGE_NAME=$(echo "$LOAD_OUTPUT" | grep -oP 'Loaded image ID: \K.*' || echo "secsnow:latest")
         fi
-        show_success "新镜像加载成功: $NEW_IMAGE_NAME"
+        show_success "镜像加载成功: $NEW_IMAGE_NAME"
     else
         show_error "镜像加载失败: $LOAD_OUTPUT"
     fi
@@ -209,6 +279,33 @@ load_new_image() {
     # 显示镜像列表
     show_info "当前 SecSnow 镜像列表："
     docker images | grep -E "secsnow|REPOSITORY" || true
+    
+    export NEW_IMAGE_NAME
+}
+
+# 从 Docker Registry 拉取镜像
+pull_image_from_registry() {
+    show_step "从 Docker Registry 拉取镜像..."
+    
+    # 记录旧镜像信息
+    OLD_IMAGE=$(docker images | grep secsnow | head -1 | awk '{print $1":"$2}')
+    show_info "当前镜像: ${OLD_IMAGE:-无}"
+    
+    # 拉取新镜像
+    show_info "拉取镜像: ${NEW_IMAGE_NAME}..."
+    echo ""
+    
+    if docker pull "${NEW_IMAGE_NAME}"; then
+        show_success "镜像拉取成功: $NEW_IMAGE_NAME"
+    else
+        show_error "镜像拉取失败，请检查网络连接和镜像名称"
+    fi
+    
+    # 显示镜像信息
+    show_info "镜像详细信息："
+    # 提取镜像名称（不含tag）进行过滤
+    local image_name_only=$(echo "$NEW_IMAGE_NAME" | cut -d':' -f1 | rev | cut -d'/' -f1 | rev)
+    docker images | grep -E "${image_name_only}|REPOSITORY" || true
     
     export NEW_IMAGE_NAME
 }
@@ -373,6 +470,13 @@ show_completion() {
     echo ""
     echo -e "${BLUE}更新信息:${NC}"
     echo "  更新时间: ${UPDATE_DATE}"
+    echo "  更新模式: ${UPDATE_MODE}"
+    if [ "$UPDATE_MODE" = "local" ]; then
+        echo "  镜像文件: ${NEW_IMAGE_FILE:-未知}"
+    else
+        echo "  镜像来源: Docker Registry"
+        echo "  镜像标识: ${REGISTRY_IMAGE:-未知}"
+    fi
     echo "  新镜像: ${NEW_IMAGE_NAME:-未知}"
     echo "  备份目录: ${CURRENT_BACKUP_DIR:-未备份}"
     echo ""
@@ -386,45 +490,56 @@ show_completion() {
     echo "  查看 Web 日志:"
     echo "    docker logs -f secsnow-web"
     echo ""
-    echo "  回滚到旧版本（如果需要）:"
-    echo "    1. 停止服务: $COMPOSE_CMD down"
-    echo "    2. 恢复配置: cp ${CURRENT_BACKUP_DIR}/.env.backup .env"
-    echo "    3. 重新加载旧镜像"
-    echo "    4. 启动服务: $COMPOSE_CMD up -d"
+    echo "  查看所有服务日志:"
+    echo "    cd ${INSTALL_DIR} && $COMPOSE_CMD logs -f"
     echo ""
+    
+    if [ "$UPDATE_MODE" = "local" ]; then
+        echo "  下次更新（本地文件）:"
+        echo "    1. 将新镜像文件放入: ${BASE_DIR}/"
+        echo "    2. 运行更新脚本: bash $0 -y"
+    else
+        echo "  下次更新（从仓库拉取）:"
+        # 提取镜像名称（不含tag）
+        local image_base=$(echo "$REGISTRY_IMAGE" | cut -d':' -f1)
+        echo "    bash $0 -r ${image_base}:<新版本号> -y"
+    fi
+    echo ""
+    
+    echo -e "${BLUE}回滚步骤（如果需要）:${NC}"
+    echo "  1. 停止服务: cd ${INSTALL_DIR} && $COMPOSE_CMD down"
+    echo "  2. 恢复配置: cp ${CURRENT_BACKUP_DIR}/.env.backup .env"
+    if [ "$UPDATE_MODE" = "registry" ]; then
+        local image_base=$(echo "$REGISTRY_IMAGE" | cut -d':' -f1)
+        echo "  3. 拉取旧版本: docker pull ${image_base}:<旧版本号>"
+        echo "  4. 更新 .env 文件中的 SECSNOW_IMAGE"
+    else
+        echo "  3. 重新加载旧镜像"
+    fi
+    echo "  5. 启动服务: $COMPOSE_CMD up -d"
+    echo ""
+    
     echo -e "${YELLOW}提示:${NC}"
     echo "  1. 如遇问题，可查看日志: docker logs secsnow-web"
     echo "  2. 备份文件保存在: ${BACKUP_DIR}"
     echo "  3. 建议测试主要功能是否正常"
+    echo "  4. 数据库数据已保留，无需担心数据丢失"
+    echo ""
     echo "========================================="
-}
-
-# 从 Docker 仓库拉取镜像
-pull_image_from_registry() {
-    show_step "从 Docker 仓库拉取镜像..."
+    echo -e "${CYAN}访问地址:${NC}"
     
-    if [ -z "$REGISTRY_IMAGE" ]; then
-        show_error "未指定要拉取的镜像名称，请使用 --image 参数"
+    # 读取 .env 文件获取端口信息
+    if [ -f "${INSTALL_DIR}/.env" ]; then
+        HTTP_PORT=$(grep "^HTTP_PORT=" "${INSTALL_DIR}/.env" | cut -d'=' -f2 || echo "80")
+        HTTPS_PORT=$(grep "^HTTPS_PORT=" "${INSTALL_DIR}/.env" | cut -d'=' -f2 || echo "443")
+        
+        echo "  HTTP:  http://服务器IP:${HTTP_PORT}"
+        if [ -n "$HTTPS_PORT" ]; then
+            echo "  HTTPS: https://服务器IP:${HTTPS_PORT}"
+        fi
     fi
     
-    # 记录旧镜像信息
-    OLD_IMAGE=$(docker images | grep secsnow | head -1 | awk '{print $1":"$2}')
-    show_info "当前镜像: ${OLD_IMAGE:-无}"
-    
-    # 拉取新镜像
-    show_info "正在拉取镜像: ${REGISTRY_IMAGE}..."
-    if docker pull "${REGISTRY_IMAGE}"; then
-        show_success "镜像拉取成功: ${REGISTRY_IMAGE}"
-        NEW_IMAGE_NAME="${REGISTRY_IMAGE}"
-    else
-        show_error "镜像拉取失败，请检查镜像名称和网络连接"
-    fi
-    
-    # 显示镜像列表
-    show_info "当前 SecSnow 镜像列表："
-    docker images | grep -E "secsnow|REPOSITORY" || true
-    
-    export NEW_IMAGE_NAME
+    echo "========================================="
 }
 
 # 显示帮助信息
@@ -435,33 +550,48 @@ show_help() {
     echo "用法: $0 [选项]"
     echo ""
     echo "选项:"
-    echo "  -h, --help              显示此帮助信息"
-    echo "  -y, --yes               跳过确认提示，直接更新"
-    echo "  --no-backup             跳过备份步骤"
-    echo "  --no-migrate            跳过数据库迁移"
-    echo "  --cleanup               更新后自动清理旧镜像"
-    echo "  --pull                  从 Docker 仓库拉取镜像（而非本地 tar 文件）"
-    echo "  --image <镜像名称>      指定要拉取的镜像（配合 --pull 使用）"
-    echo "                          格式: registry/image:tag"
+    echo "  -h, --help                        显示此帮助信息"
+    echo "  -y, --yes                         跳过确认提示，直接更新"
+    echo "  -r, --registry-image <完整镜像>   从仓库拉取（格式：仓库/镜像:tag）"
+    echo "  --no-backup                       跳过备份步骤"
+    echo "  --no-migrate                      跳过数据库迁移"
+    echo "  --cleanup                         更新后自动清理旧镜像"
     echo ""
-    echo "示例:"
-    echo "  $0                      交互式更新（使用本地 tar 文件）"
-    echo "  $0 -y                   自动确认更新（使用本地 tar 文件）"
-    echo "  $0 --cleanup            更新并清理旧镜像"
-    echo "  $0 --pull --image secsnow/web:v2.0.0"
-    echo "                          从仓库拉取指定镜像"
-    echo "  $0 --pull --image registry.example.com/secsnow:latest -y"
-    echo "                          从私有仓库拉取镜像并自动确认"
+    echo "更新方式:"
     echo ""
-    echo "更新模式:"
-    echo "  1. 本地模式（默认）: 从 ${BASE_DIR} 目录加载 secsnow*.tar 文件"
-    echo "  2. 仓库模式（--pull）: 从 Docker 仓库拉取指定镜像"
+    echo "  1. 从本地 tar 文件更新（默认）："
+    echo "     $0"
+    echo "     $0 -y"
+    echo "     (需要将 secsnow*.tar 放入 ${BASE_DIR} 目录)"
     echo ""
-    echo "更新前请确保:"
-    echo "  - 本地模式: 新的镜像文件 (secsnow*.tar) 已放入 ${BASE_DIR} 目录"
-    echo "  - 仓库模式: 有网络连接且可以访问 Docker 仓库"
-    echo "  - 当前服务正在运行"
-    echo "  - 有足够的磁盘空间用于备份"
+    echo "  2. 从 Docker Registry 拉取："
+    echo "     $0 -r <完整镜像名称:tag>"
+    echo ""
+    echo "完整示例:"
+    echo ""
+    echo "  # 从本地文件更新"
+    echo "  $0 -y --cleanup"
+    echo ""
+    echo "  # 从 Docker Hub 拉取"
+    echo "  $0 -r secsnow/secsnow:v1.0.0"
+    echo "  $0 -r secsnow/secsnow:latest -y"
+    echo ""
+    echo "  # 从私有 Harbor 拉取"
+    echo "  $0 -r harbor.company.com/secsnow/secsnow:v1.0.0"
+    echo "  $0 -r harbor.company.com/secsnow/secsnow:latest --cleanup"
+    echo ""
+    echo "  # 从阿里云容器镜像服务拉取"
+    echo "  $0 -r crpi-xxx.cn-chengdu.personal.cr.aliyuncs.com/secsnow/secsnow_cty:1.0.1"
+    echo ""
+    echo "  # 从私有仓库拉取（需要先登录）"
+    echo "  docker login registry.example.com:5000"
+    echo "  $0 -r registry.example.com:5000/secsnow:stable -y"
+    echo ""
+    echo "注意事项:"
+    echo "  1. 镜像名称必须包含完整的 tag（如 :v1.0.0 或 :latest）"
+    echo "  2. 私有仓库需要先使用 docker login 登录"
+    echo "  3. 当前服务必须正在运行"
+    echo "  4. 确保有足够的磁盘空间用于备份"
     echo ""
 }
 
@@ -483,6 +613,13 @@ main() {
                 SKIP_CONFIRM=true
                 shift
                 ;;
+            -r|--registry-image)
+                REGISTRY_IMAGE="$2"
+                if [ -z "$REGISTRY_IMAGE" ]; then
+                    show_error "参数 -r/--registry-image 需要指定完整镜像名称（包含tag）"
+                fi
+                shift 2
+                ;;
             --no-backup)
                 SKIP_BACKUP=true
                 shift
@@ -497,7 +634,8 @@ main() {
                 ;;
             *)
                 show_warning "未知参数: $1"
-                shift
+                show_info "使用 -h 或 --help 查看帮助"
+                exit 1
                 ;;
         esac
     done
@@ -527,29 +665,80 @@ main() {
     
     echo ""
     
+    # 显示更新模式信息
+    if [ -n "$REGISTRY_IMAGE" ]; then
+        echo -e "${CYAN}更新模式: Docker Registry${NC}"
+        echo -e "${BLUE}目标镜像: ${REGISTRY_IMAGE}${NC}"
+        echo ""
+    fi
+    
     # 执行更新步骤
     check_environment
-    check_new_image
     
+    # 自动选择更新模式
+    auto_select_update_mode
+    
+    echo ""
+    
+    # 根据模式准备镜像
+    if [ "$UPDATE_MODE" = "local" ]; then
+        check_local_image
+    elif [ "$UPDATE_MODE" = "registry" ]; then
+        prepare_registry_image
+    fi
+    
+    echo ""
+    
+    # 确认更新信息
+    if [ "$SKIP_CONFIRM" = false ]; then
+        echo -e "${YELLOW}更新信息确认:${NC}"
+        echo "  更新模式: $UPDATE_MODE"
+        if [ "$UPDATE_MODE" = "local" ]; then
+            echo "  镜像文件: $NEW_IMAGE_FILE"
+        else
+            echo "  目标镜像: $NEW_IMAGE_NAME"
+        fi
+        echo ""
+        read -p "确认开始更新? (y/n): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            show_warning "更新已取消"
+            exit 0
+        fi
+    fi
+    
+    echo ""
+    
+    # 备份数据
     if [ "$SKIP_BACKUP" = false ]; then
         backup_data
     else
         show_info "跳过备份步骤"
     fi
     
+    # 停止服务
     stop_services
+    
+    # 加载或拉取新镜像
     load_new_image
+    
+    # 更新配置
     update_config
+    
+    # 启动服务
     start_services
     
+    # 数据库迁移
     if [ "$SKIP_MIGRATE" = false ]; then
         run_migrations
     else
         show_info "跳过数据库迁移"
     fi
     
+    # 验证更新
     verify_update
     
+    # 清理旧镜像
     if [ "$AUTO_CLEANUP" = true ]; then
         # 自动清理，不询问
         show_info "自动清理旧镜像..."
@@ -558,9 +747,9 @@ main() {
         cleanup_old_images
     fi
     
+    # 显示完成信息
     show_completion
 }
 
 # 执行主函数
 main "$@"
-
