@@ -1,4 +1,4 @@
-# 网络安全综合学习系统(个人版)
+# 网络安全综合学习系统
 一个符合中文逻辑的网络安全综合学习系统。
 整合了贴合中文操作逻辑的CTF竞赛系统、知识竞赛系统、漏洞靶场练习系统、WIKI知识库管理系统、工具管理及招聘岗位发布等核心功能模块，全面覆盖竞赛组织、技能实训、知识沉淀、资源管理与人才对接等多元需求。您的支持就是我们技术开源的动力！谢谢！
 
@@ -8,15 +8,7 @@
 
 前端：Bootstrap
 
-安装及使用指导：为了不必要了时间浪费，请您转至[官方文档中心](https://https://www.secsnow.cn/wiki/subject/6/)
-
-
-官方[www.sec-snow.com](https://www.sec-snow.com]/)
-
-页面UI具体参考：[www.secsnow.cn](https://www.secsnow.cn/)
-
-交流、学习、合作、竞赛功能免费安装联系：qun：扣扣学习交流群517929458
-
+目前CTF竞赛系统免费授权和使用，为了不必要了时间浪费，请您转至[官方文档中心](https://https://www.secsnow.cn/wiki/subject/6/)查看安装及使用指导。你可访问官方网站：[www.sec-snow.com](https://www.sec-snow.com]/)了解项目情况。您想看页面UI请具体参考：[www.secsnow.cn](https://www.secsnow.cn/)
 
 
 
@@ -63,4 +55,4 @@
 
 
 ## 其它声明
-本项目开发过程中使用了部分[iznoe](https://github.com/Hopetree/izone "iznoe")、[simpleui](https://github.com/newpanjing/simpleui)项目代码及架构，非常感谢！
+本项目开发过程中使用了部分[iznoe](https://github.com/Hopetree/izone "iznoe")、[simpleui](https://github.com/newpanjing/simpleui)项目代码及架构，非常感谢！交流、学习、合作：扣扣学习交流群517929458
