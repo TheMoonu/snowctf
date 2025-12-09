@@ -5,10 +5,6 @@
 目标：致力于共创、共享网络安全学习环境。
 
 目前CTF竞赛系统免费授权和使用，为了不必要了时间浪费，请您转至[官方文档中心](https://www.secsnow.cn/wiki/subject/6/)查看安装及使用指导。你可访问官方网站：[www.sec-snow.com](https://www.sec-snow.com]/)了解项目情况。您想看页面UI请具体参考：[www.secsnow.cn](https://www.secsnow.cn/)
-<<<<<<< HEAD
-=======
-
->>>>>>> 109aeab (优化文档)
 
 
 ## 界面介绍
