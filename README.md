@@ -4,12 +4,7 @@
 
 目标：致力于共创、共享网络安全学习环境。
 
-后端：Python3.11+Django5.
-
-前端：Bootstrap
-
-目前CTF竞赛系统免费授权和使用，为了不必要了时间浪费，请您转至[官方文档中心](https://https://www.secsnow.cn/wiki/subject/6/)查看安装及使用指导。你可访问官方网站：[www.sec-snow.com](https://www.sec-snow.com]/)了解项目情况。您想看页面UI请具体参考：[www.secsnow.cn](https://www.secsnow.cn/)
-
+目前CTF竞赛系统免费授权和使用，为了不必要了时间浪费，请您转至[官方文档中心](https://www.secsnow.cn/wiki/subject/6/)查看安装及使用指导。你可访问官方网站：[www.sec-snow.com](https://www.sec-snow.com]/)了解项目情况。您想看页面UI请具体参考：[www.secsnow.cn](https://www.secsnow.cn/)
 
 
 ## 界面介绍
@@ -56,3 +51,4 @@
 
 ## 其它声明
 本项目开发过程中使用了部分[iznoe](https://github.com/Hopetree/izone "iznoe")、[simpleui](https://github.com/newpanjing/simpleui)项目代码及架构，非常感谢！交流、学习、合作：扣扣学习交流群517929458
+
