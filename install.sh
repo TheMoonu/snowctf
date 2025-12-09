@@ -539,6 +539,81 @@ load_images() {
     export LOADED_SECSNOW_IMAGE="$SECSNOW_IMAGE_NAME"
 }
 
+# 从 Docker 仓库拉取镜像
+pull_images_from_registry() {
+    show_step "从 Docker 仓库拉取镜像..."
+    
+    # 设置默认镜像（如果用户未指定）
+    REGISTRY_POSTGRES_IMAGE="${REGISTRY_POSTGRES_IMAGE:-postgres:17-bookworm}"
+    REGISTRY_REDIS_IMAGE="${REGISTRY_REDIS_IMAGE:-redis:8.4.0}"
+    REGISTRY_NGINX_IMAGE="${REGISTRY_NGINX_IMAGE:-nginx:alpine}"
+    
+    # SecSnow 镜像必须由用户指定
+    if [ -z "$REGISTRY_SECSNOW_IMAGE" ]; then
+        show_error "使用 --pull 模式时，必须使用 --secsnow-image 参数指定 SecSnow 镜像
+        
+示例:
+  $0 --pull --secsnow-image registry.example.com/secsnow:v1.0.0"
+    fi
+    
+    show_info "将拉取以下镜像："
+    echo "  PostgreSQL: ${REGISTRY_POSTGRES_IMAGE}"
+    echo "  Redis:      ${REGISTRY_REDIS_IMAGE}"
+    echo "  Nginx:      ${REGISTRY_NGINX_IMAGE}"
+    echo "  SecSnow:    ${REGISTRY_SECSNOW_IMAGE}"
+    echo ""
+    
+    # 拉取 PostgreSQL 镜像
+    show_info "拉取 PostgreSQL 镜像: ${REGISTRY_POSTGRES_IMAGE}..."
+    if docker pull "${REGISTRY_POSTGRES_IMAGE}"; then
+        show_success "PostgreSQL 镜像拉取成功"
+        POSTGRES_IMAGE_NAME="${REGISTRY_POSTGRES_IMAGE}"
+    else
+        show_error "PostgreSQL 镜像拉取失败，请检查镜像名称和网络连接"
+    fi
+    
+    # 拉取 Redis 镜像
+    show_info "拉取 Redis 镜像: ${REGISTRY_REDIS_IMAGE}..."
+    if docker pull "${REGISTRY_REDIS_IMAGE}"; then
+        show_success "Redis 镜像拉取成功"
+        REDIS_IMAGE_NAME="${REGISTRY_REDIS_IMAGE}"
+    else
+        show_error "Redis 镜像拉取失败，请检查镜像名称和网络连接"
+    fi
+    
+    # 拉取 Nginx 镜像
+    show_info "拉取 Nginx 镜像: ${REGISTRY_NGINX_IMAGE}..."
+    if docker pull "${REGISTRY_NGINX_IMAGE}"; then
+        show_success "Nginx 镜像拉取成功"
+        NGINX_IMAGE_NAME="${REGISTRY_NGINX_IMAGE}"
+    else
+        show_error "Nginx 镜像拉取失败，请检查镜像名称和网络连接"
+    fi
+    
+    # 拉取 SecSnow Web 镜像
+    show_info "拉取 SecSnow Web 镜像: ${REGISTRY_SECSNOW_IMAGE}..."
+    if docker pull "${REGISTRY_SECSNOW_IMAGE}"; then
+        show_success "SecSnow Web 镜像拉取成功"
+        SECSNOW_IMAGE_NAME="${REGISTRY_SECSNOW_IMAGE}"
+    else
+        show_error "SecSnow Web 镜像拉取失败，请检查镜像名称和网络连接"
+    fi
+    
+    echo ""
+    show_success "所有镜像拉取完成"
+    
+    # 显示已拉取的镜像
+    show_info "已拉取的镜像列表："
+    docker images | grep -E "postgres|redis|nginx|secsnow" || true
+    echo ""
+    
+    # 导出镜像名称供后续使用
+    export LOADED_POSTGRES_IMAGE="$POSTGRES_IMAGE_NAME"
+    export LOADED_REDIS_IMAGE="$REDIS_IMAGE_NAME"
+    export LOADED_NGINX_IMAGE="$NGINX_IMAGE_NAME"
+    export LOADED_SECSNOW_IMAGE="$SECSNOW_IMAGE_NAME"
+}
+
 
 # 生成环境配置文件
 generate_env() {
@@ -1020,13 +1095,119 @@ show_full_docker_guide() {
     echo ""
 }
 
+# 显示帮助信息
+show_help() {
+    echo ""
+    echo "SecSnow 安装脚本"
+    echo ""
+    echo "用法: $0 [选项]"
+    echo ""
+    echo "选项:"
+    echo "  -h, --help              显示此帮助信息"
+    echo "  --help-docker           显示 Docker 完整安装指引"
+    echo "  --pull                  从 Docker 仓库拉取镜像（而非本地 tar 文件）"
+    echo "  --postgres-image <镜像>  指定 PostgreSQL 镜像（配合 --pull 使用）"
+    echo "                          默认: postgres:17-bookworm"
+    echo "  --redis-image <镜像>     指定 Redis 镜像（配合 --pull 使用）"
+    echo "                          默认: redis:8.4.0"
+    echo "  --nginx-image <镜像>     指定 Nginx 镜像（配合 --pull 使用）"
+    echo "                          默认: nginx:alpine"
+    echo "  --secsnow-image <镜像>   指定 SecSnow 镜像（配合 --pull 使用，必需）"
+    echo "  yes/no                  是否创建管理员账户（默认: yes）"
+    echo ""
+    echo "示例:"
+    echo "  $0                      交互式安装（使用本地 tar 文件）"
+    echo "  $0 no                   安装但不创建管理员账户"
+    echo "  $0 --pull --secsnow-image registry.example.com/secsnow:v1.0.0"
+    echo "                          从仓库拉取镜像进行安装"
+    echo "  $0 --pull --secsnow-image myregistry/secsnow:latest \\"
+    echo "     --postgres-image postgres:16 \\"
+    echo "     --redis-image redis:7"
+    echo "                          从仓库拉取指定版本的镜像"
+    echo ""
+    echo "安装模式:"
+    echo "  1. 本地模式（默认）: 从 ${BASE_DIR} 目录加载 tar 文件"
+    echo "  2. 仓库模式（--pull）: 从 Docker 仓库拉取指定镜像"
+    echo ""
+    echo "注意事项:"
+    echo "  - 本地模式需要准备好所有镜像的 tar 文件"
+    echo "  - 仓库模式需要网络连接且可以访问 Docker 仓库"
+    echo "  - 仓库模式必须使用 --secsnow-image 指定 SecSnow 镜像"
+    echo ""
+}
+
 # 主函数
 main() {
-    # 处理帮助参数
-    if [ "$1" == "--help-docker" ] || [ "$1" == "-h" ]; then
-        show_full_docker_guide
-        exit 0
-    fi
+    # 解析参数
+    USE_REGISTRY=false
+    REGISTRY_POSTGRES_IMAGE=""
+    REGISTRY_REDIS_IMAGE=""
+    REGISTRY_NGINX_IMAGE=""
+    REGISTRY_SECSNOW_IMAGE=""
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            --help-docker)
+                show_full_docker_guide
+                exit 0
+                ;;
+            --pull)
+                USE_REGISTRY=true
+                shift
+                ;;
+            --postgres-image)
+                if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                    REGISTRY_POSTGRES_IMAGE="$2"
+                    shift 2
+                else
+                    show_error "--postgres-image 参数需要指定镜像名称"
+                fi
+                ;;
+            --redis-image)
+                if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                    REGISTRY_REDIS_IMAGE="$2"
+                    shift 2
+                else
+                    show_error "--redis-image 参数需要指定镜像名称"
+                fi
+                ;;
+            --nginx-image)
+                if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                    REGISTRY_NGINX_IMAGE="$2"
+                    shift 2
+                else
+                    show_error "--nginx-image 参数需要指定镜像名称"
+                fi
+                ;;
+            --secsnow-image)
+                if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                    REGISTRY_SECSNOW_IMAGE="$2"
+                    shift 2
+                else
+                    show_error "--secsnow-image 参数需要指定镜像名称"
+                fi
+                ;;
+            yes|no)
+                CREATE_ADMIN="$1"
+                shift
+                ;;
+            *)
+                show_warning "未知参数: $1"
+                shift
+                ;;
+        esac
+    done
+    
+    # 导出变量供其他函数使用
+    export USE_REGISTRY
+    export REGISTRY_POSTGRES_IMAGE
+    export REGISTRY_REDIS_IMAGE
+    export REGISTRY_NGINX_IMAGE
+    export REGISTRY_SECSNOW_IMAGE
     
     echo ""
     echo "========================================="
@@ -1037,6 +1218,12 @@ main() {
     # 显示配置信息
     echo -e "${BLUE}安装配置:${NC}"
     echo "  安装目录: ${INSTALL_DIR}"
+    if [ "$USE_REGISTRY" = true ]; then
+        echo "  安装模式: 从 Docker 仓库拉取镜像"
+    else
+        echo "  安装模式: 从本地 tar 文件加载镜像"
+        echo "  镜像目录: ${BASE_DIR}"
+    fi
     echo "  创建管理员: ${CREATE_ADMIN}"
     echo ""
     
@@ -1052,8 +1239,17 @@ main() {
     
     # 执行安装步骤
     check_docker
-    check_images
-    load_images
+    
+    # 根据模式选择镜像获取方式
+    if [ "$USE_REGISTRY" = true ]; then
+        # 从 Docker 仓库拉取镜像
+        pull_images_from_registry
+    else
+        # 从本地 tar 文件加载镜像
+        check_images
+        load_images
+    fi
+    
     generate_env
     start_services
     run_migrations

@@ -399,6 +399,34 @@ show_completion() {
     echo "========================================="
 }
 
+# 从 Docker 仓库拉取镜像
+pull_image_from_registry() {
+    show_step "从 Docker 仓库拉取镜像..."
+    
+    if [ -z "$REGISTRY_IMAGE" ]; then
+        show_error "未指定要拉取的镜像名称，请使用 --image 参数"
+    fi
+    
+    # 记录旧镜像信息
+    OLD_IMAGE=$(docker images | grep secsnow | head -1 | awk '{print $1":"$2}')
+    show_info "当前镜像: ${OLD_IMAGE:-无}"
+    
+    # 拉取新镜像
+    show_info "正在拉取镜像: ${REGISTRY_IMAGE}..."
+    if docker pull "${REGISTRY_IMAGE}"; then
+        show_success "镜像拉取成功: ${REGISTRY_IMAGE}"
+        NEW_IMAGE_NAME="${REGISTRY_IMAGE}"
+    else
+        show_error "镜像拉取失败，请检查镜像名称和网络连接"
+    fi
+    
+    # 显示镜像列表
+    show_info "当前 SecSnow 镜像列表："
+    docker images | grep -E "secsnow|REPOSITORY" || true
+    
+    export NEW_IMAGE_NAME
+}
+
 # 显示帮助信息
 show_help() {
     echo ""
@@ -407,21 +435,33 @@ show_help() {
     echo "用法: $0 [选项]"
     echo ""
     echo "选项:"
-    echo "  -h, --help      显示此帮助信息"
-    echo "  -y, --yes       跳过确认提示，直接更新"
-    echo "  --no-backup     跳过备份步骤"
-    echo "  --no-migrate    跳过数据库迁移"
-    echo "  --cleanup       更新后自动清理旧镜像"
+    echo "  -h, --help              显示此帮助信息"
+    echo "  -y, --yes               跳过确认提示，直接更新"
+    echo "  --no-backup             跳过备份步骤"
+    echo "  --no-migrate            跳过数据库迁移"
+    echo "  --cleanup               更新后自动清理旧镜像"
+    echo "  --pull                  从 Docker 仓库拉取镜像（而非本地 tar 文件）"
+    echo "  --image <镜像名称>      指定要拉取的镜像（配合 --pull 使用）"
+    echo "                          格式: registry/image:tag"
     echo ""
     echo "示例:"
-    echo "  $0              交互式更新"
-    echo "  $0 -y           自动确认更新"
-    echo "  $0 --cleanup    更新并清理旧镜像"
+    echo "  $0                      交互式更新（使用本地 tar 文件）"
+    echo "  $0 -y                   自动确认更新（使用本地 tar 文件）"
+    echo "  $0 --cleanup            更新并清理旧镜像"
+    echo "  $0 --pull --image secsnow/web:v2.0.0"
+    echo "                          从仓库拉取指定镜像"
+    echo "  $0 --pull --image registry.example.com/secsnow:latest -y"
+    echo "                          从私有仓库拉取镜像并自动确认"
+    echo ""
+    echo "更新模式:"
+    echo "  1. 本地模式（默认）: 从 ${BASE_DIR} 目录加载 secsnow*.tar 文件"
+    echo "  2. 仓库模式（--pull）: 从 Docker 仓库拉取指定镜像"
     echo ""
     echo "更新前请确保:"
-    echo "  1. 新的镜像文件 (secsnow*.tar) 已放入 ${BASE_DIR} 目录"
-    echo "  2. 当前服务正在运行"
-    echo "  3. 有足够的磁盘空间用于备份"
+    echo "  - 本地模式: 新的镜像文件 (secsnow*.tar) 已放入 ${BASE_DIR} 目录"
+    echo "  - 仓库模式: 有网络连接且可以访问 Docker 仓库"
+    echo "  - 当前服务正在运行"
+    echo "  - 有足够的磁盘空间用于备份"
     echo ""
 }
 
