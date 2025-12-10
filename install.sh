@@ -15,7 +15,6 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALL_DIR="${SCRIPT_DIR}"
 BASE_DIR="${INSTALL_DIR}/base"
-CREATE_ADMIN="${1:-yes}"  # 是否创建管理员账户（yes/no）
 
 # 显示步骤信息
 show_step() {
@@ -1144,6 +1143,7 @@ main() {
     REGISTRY_REDIS_IMAGE=""
     REGISTRY_NGINX_IMAGE=""
     REGISTRY_SECSNOW_IMAGE=""
+    CREATE_ADMIN=""
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -1201,6 +1201,11 @@ main() {
                 ;;
         esac
     done
+    
+    # 如果未指定 CREATE_ADMIN，设置默认值为 yes
+    if [ -z "$CREATE_ADMIN" ]; then
+        CREATE_ADMIN="yes"
+    fi
     
     # 导出变量供其他函数使用
     export USE_REGISTRY
