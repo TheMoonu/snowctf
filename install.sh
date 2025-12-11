@@ -457,9 +457,14 @@ check_images() {
         MISSING_FILES=$((MISSING_FILES + 1))
     fi
     
-    if [ ! -f "secsnow_cty_sy_sp1.tar" ]; then
-        show_warning "缺少 secsnow_cty_sy_sp1.tar (web镜像)"
+    # 自动查找 secsnow 开头的 tar 文件（更灵活，不固定文件名）
+    SECSNOW_TAR_FILE=$(ls secsnow*.tar 2>/dev/null | head -n 1)
+    if [ -z "$SECSNOW_TAR_FILE" ]; then
+        show_warning "未找到 secsnow*.tar 格式的镜像文件"
         MISSING_FILES=$((MISSING_FILES + 1))
+    else
+        show_info "检测到 SecSnow 镜像文件: ${SECSNOW_TAR_FILE}"
+        export SECSNOW_TAR_FILE
     fi
     
     if [ $MISSING_FILES -gt 0 ]; then
@@ -468,7 +473,7 @@ check_images() {
   - postgres.tar (PostgreSQL 17 镜像)
   - redis.tar (Redis 8.4.0 镜像)
   - nginx.tar (Nginx 镜像)
-  - secsnow.tar (SecSnow Web 镜像)"
+  - secsnow*.tar (SecSnow Web 镜像，例如: secsnow_cty_sy_sp1.tar)"
     fi
     
     show_success "所有镜像文件检查完成"
@@ -487,7 +492,8 @@ load_images() {
     POSTGRES_LOADED=$(docker load -i postgres.tar 2>&1)
     if [ $? -eq 0 ]; then
         # 提取镜像名称，格式类似: Loaded image: postgres:17-bookworm
-        POSTGRES_IMAGE_NAME=$(echo "$POSTGRES_LOADED" | grep -oP 'Loaded image: \K.*' || echo "postgres:17-bookworm")
+        # 使用 head -n 1 确保只取第一个标签（避免多标签镜像导致问题）
+        POSTGRES_IMAGE_NAME=$(echo "$POSTGRES_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "postgres:17-bookworm")
         show_success "PostgreSQL 镜像加载成功: $POSTGRES_IMAGE_NAME"
     else
         show_error "PostgreSQL 镜像加载失败"
@@ -497,7 +503,7 @@ load_images() {
     show_info "加载 Redis 镜像..."
     REDIS_LOADED=$(docker load -i redis.tar 2>&1)
     if [ $? -eq 0 ]; then
-        REDIS_IMAGE_NAME=$(echo "$REDIS_LOADED" | grep -oP 'Loaded image: \K.*' || echo "redis:8.4.0")
+        REDIS_IMAGE_NAME=$(echo "$REDIS_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "redis:8.4.0")
         show_success "Redis 镜像加载成功: $REDIS_IMAGE_NAME"
     else
         show_error "Redis 镜像加载失败"
@@ -507,18 +513,26 @@ load_images() {
     show_info "加载 Nginx 镜像..."
     NGINX_LOADED=$(docker load -i nginx.tar 2>&1)
     if [ $? -eq 0 ]; then
-        NGINX_IMAGE_NAME=$(echo "$NGINX_LOADED" | grep -oP 'Loaded image: \K.*' || echo "nginx:alpine")
+        NGINX_IMAGE_NAME=$(echo "$NGINX_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "nginx:alpine")
         show_success "Nginx 镜像加载成功: $NGINX_IMAGE_NAME"
     else
         show_error "Nginx 镜像加载失败"
     fi
     
-    # 加载SecSnow Web镜像并获取镜像名
-    show_info "加载 SecSnow Web 镜像..."
-    SECSNOW_LOADED=$(docker load -i secsnow_cty_sy_sp1.tar 2>&1)
+    # 加载SecSnow Web镜像并获取镜像名（使用动态检测的文件名）
+    show_info "加载 SecSnow Web 镜像: ${SECSNOW_TAR_FILE}..."
+    SECSNOW_LOADED=$(docker load -i "${SECSNOW_TAR_FILE}" 2>&1)
     if [ $? -eq 0 ]; then
-        SECSNOW_IMAGE_NAME=$(echo "$SECSNOW_LOADED" | grep -oP 'Loaded image: \K.*' || echo "secsnow:secure")
-        show_success "SecSnow Web 镜像加载成功: $SECSNOW_IMAGE_NAME"
+        # 使用 head -n 1 只取第一个镜像名（tar文件可能包含多个标签）
+        SECSNOW_IMAGE_NAME=$(echo "$SECSNOW_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "secsnow:secure")
+        
+        # 如果加载了多个标签，显示提示信息
+        SECSNOW_IMAGE_COUNT=$(echo "$SECSNOW_LOADED" | grep -c 'Loaded image:' || echo "1")
+        if [ "$SECSNOW_IMAGE_COUNT" -gt 1 ]; then
+            show_success "SecSnow Web 镜像加载成功: $SECSNOW_IMAGE_NAME (检测到 $SECSNOW_IMAGE_COUNT 个标签，使用第一个)"
+        else
+            show_success "SecSnow Web 镜像加载成功: $SECSNOW_IMAGE_NAME"
+        fi
     else
         show_error "SecSnow Web 镜像加载失败"
     fi
@@ -619,12 +633,6 @@ generate_env() {
     show_step "生成环境配置文件..."
     
     cd "${INSTALL_DIR}" || show_error "无法进入安装目录"
-    
-    # 如果.env已存在，备份
-    if [ -f ".env" ]; then
-        show_warning ".env文件已存在，备份为 .env.backup.$(date +%Y%m%d_%H%M%S)"
-        cp .env ".env.backup.$(date +%Y%m%d_%H%M%S)"
-    fi
     
     # 生成随机密码
     DB_PASSWORD=$(generate_password)
@@ -1213,6 +1221,16 @@ main() {
     export REGISTRY_REDIS_IMAGE
     export REGISTRY_NGINX_IMAGE
     export REGISTRY_SECSNOW_IMAGE
+    
+    # 检查并清理旧的 .env 文件
+    if [ -f "${INSTALL_DIR}/.env" ]; then
+        show_warning "检测到已存在的 .env 配置文件"
+        BACKUP_FILE=".env.backup.$(date +%Y%m%d_%H%M%S)"
+        mv "${INSTALL_DIR}/.env" "${INSTALL_DIR}/${BACKUP_FILE}"
+        show_info "已备份为: ${BACKUP_FILE}"
+        show_success "旧配置文件已清理，将重新生成"
+        echo ""
+    fi
     
     echo ""
     echo "========================================="
