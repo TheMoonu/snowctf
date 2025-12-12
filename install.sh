@@ -694,14 +694,27 @@ SNOW_DEBUG=False
 # 允许访问的主机（多个用逗号分隔，* 表示允许所有）
 SNOW_ALLOWED_HOSTS=*
 
+# CSRF信任来源（多个用逗号分隔，* 表示允许所有）
+#SNOW_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
 # 机器码（用于授权绑定，留空则自动生成）
 SNOW_MACHINE_CODE=
 
 # 协议配置（http 或 https）
 SNOW_PROTOCOL_HTTPS=http
 
+# 邮箱验证方式（none/optional/mandator）
+# 注意：必须在后台启用邮箱功能，然后设置成mandatory才能真正发送邮件
+SNOW_ACCOUNT_EMAIL_VERIFICATION=none
+
+# 数据加密密钥（用于加密敏感信息如手机号、真实姓名等）强烈建议修改为随机字符串
+ENCRYPTION_KEY=SecSnowEncryptKey20251211
+
+
 #后台管理标题图标(部署完成后替换为一个可用的图片地址即可)
-SITE_URL=http://127.0.0.1/logo.png
+#SNOW_SIMPLEUI_HOME_TITLE=SECSNOW
+#SNOW_SIMPLEUI_LOGO=https://www.secsnow.cn/static/blog/img/logo.svg
+
 
 # ================================================
 # 🌸 Flower 监控配置（可选）
