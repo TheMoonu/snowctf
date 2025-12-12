@@ -154,30 +154,6 @@ prepare_registry_image() {
     
     show_success "目标镜像: $NEW_IMAGE_NAME"
     
-    # 提取仓库地址（用于可能的登录）
-    local registry_host=""
-    if [[ "$REGISTRY_IMAGE" =~ ^([^/]+\.[^/]+)/ ]]; then
-        registry_host="${BASH_REMATCH[1]}"
-    fi
-    
-    # 询问是否需要登录
-    if [ -n "$registry_host" ]; then
-        echo ""
-        read -p "是否需要登录到 $registry_host ? (y/n): " -n 1 -r
-        echo
-        
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            show_info "登录到镜像仓库..."
-            docker login "$registry_host"
-            
-            if [ $? -ne 0 ]; then
-                show_error "登录失败"
-            fi
-            
-            show_success "登录成功"
-        fi
-    fi
-    
     export NEW_IMAGE_NAME
 }
 
@@ -291,14 +267,52 @@ pull_image_from_registry() {
     OLD_IMAGE=$(docker images | grep secsnow | head -1 | awk '{print $1":"$2}')
     show_info "当前镜像: ${OLD_IMAGE:-无}"
     
+    # 提取仓库地址
+    local registry_host=""
+    if [[ "$NEW_IMAGE_NAME" =~ ^([^/]+\.[^/]+)/ ]]; then
+        registry_host="${BASH_REMATCH[1]}"
+    fi
+    
     # 拉取新镜像
     show_info "拉取镜像: ${NEW_IMAGE_NAME}..."
     echo ""
     
-    if docker pull "${NEW_IMAGE_NAME}"; then
+    # 第一次尝试：直接拉取（不登录）
+    if docker pull "${NEW_IMAGE_NAME}" 2>&1; then
         show_success "镜像拉取成功: $NEW_IMAGE_NAME"
     else
-        show_error "镜像拉取失败，请检查网络连接和镜像名称"
+        # 拉取失败，提示登录
+        show_warning "镜像拉取失败"
+        
+        if [ -n "$registry_host" ]; then
+            echo ""
+            show_info "可能需要登录到镜像仓库"
+            read -p "是否尝试登录到 $registry_host 后重试? (y/n): " -n 1 -r
+            echo
+            
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                show_info "登录到镜像仓库..."
+                docker login "$registry_host"
+                
+                if [ $? -ne 0 ]; then
+                    show_error "登录失败，无法继续"
+                fi
+                
+                show_success "登录成功，重新拉取镜像..."
+                echo ""
+                
+                # 第二次尝试：登录后拉取
+                if docker pull "${NEW_IMAGE_NAME}"; then
+                    show_success "镜像拉取成功: $NEW_IMAGE_NAME"
+                else
+                    show_error "镜像拉取失败，请检查镜像名称和权限"
+                fi
+            else
+                show_error "未登录，无法拉取私有镜像"
+            fi
+        else
+            show_error "镜像拉取失败，请检查网络连接和镜像名称"
+        fi
     fi
     
     # 显示镜像信息
