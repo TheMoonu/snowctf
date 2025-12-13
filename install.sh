@@ -513,7 +513,7 @@ load_images() {
     show_info "加载 Nginx 镜像..."
     NGINX_LOADED=$(docker load -i nginx.tar 2>&1)
     if [ $? -eq 0 ]; then
-        NGINX_IMAGE_NAME=$(echo "$NGINX_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "nginx:alpine")
+        NGINX_IMAGE_NAME=$(echo "$NGINX_LOADED" | grep -oP 'Loaded image: \K.*' | head -n 1 || echo "nginx:stable")
         show_success "Nginx 镜像加载成功: $NGINX_IMAGE_NAME"
     else
         show_error "Nginx 镜像加载失败"
@@ -559,7 +559,7 @@ pull_images_from_registry() {
     # 设置默认镜像（如果用户未指定）
     REGISTRY_POSTGRES_IMAGE="${REGISTRY_POSTGRES_IMAGE:-postgres:17-bookworm}"
     REGISTRY_REDIS_IMAGE="${REGISTRY_REDIS_IMAGE:-redis:8.4.0}"
-    REGISTRY_NGINX_IMAGE="${REGISTRY_NGINX_IMAGE:-nginx:alpine}"
+    REGISTRY_NGINX_IMAGE="${REGISTRY_NGINX_IMAGE:-nginx:stable}"
     
     # SecSnow 镜像必须由用户指定
     if [ -z "$REGISTRY_SECSNOW_IMAGE" ]; then
@@ -665,7 +665,7 @@ POSTGRES_IMAGE=${LOADED_POSTGRES_IMAGE:-postgres:17-bookworm}
 REDIS_IMAGE=${LOADED_REDIS_IMAGE:-redis:8.4.0}
 
 # Nginx 反向代理镜像（从tar文件加载）
-NGINX_IMAGE=${LOADED_NGINX_IMAGE:-nginx:alpine}
+NGINX_IMAGE=${LOADED_NGINX_IMAGE:-nginx:stable}
 
 # SecSnow 应用镜像（从tar文件加载）
 SECSNOW_IMAGE=${LOADED_SECSNOW_IMAGE:-secsnow_cty_sy_sp1:1.0}
@@ -826,7 +826,7 @@ ENV_EOF
 Docker镜像:
   PostgreSQL: ${LOADED_POSTGRES_IMAGE:-postgres:17-bookworm}
   Redis:      ${LOADED_REDIS_IMAGE:-redis:8.4.0}
-  Nginx:      ${LOADED_NGINX_IMAGE:-nginx:alpine}
+  Nginx:      ${LOADED_NGINX_IMAGE:-nginx:stable}
   SecSnow:    ${LOADED_SECSNOW_IMAGE:-secsnow:secure}
 
 数据库配置:
@@ -858,6 +858,52 @@ EOF
     chmod 600 .credentials
     
     show_info "凭证信息已保存到: ${INSTALL_DIR}/.credentials"
+    echo ""
+}
+
+# 优化 Redis 系统配置
+optimize_redis_system() {
+    show_step "优化 Redis 系统配置..."
+    
+    # 检查是否有 root 权限
+    if [ "$EUID" -ne 0 ]; then
+        show_warning "需要 root 权限来优化系统配置，跳过优化"
+        show_info "建议手动执行以下命令（需要 sudo）："
+        echo "  echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf"
+        echo "  sysctl vm.overcommit_memory=1"
+        echo "  echo 'net.core.somaxconn = 511' >> /etc/sysctl.conf"
+        echo "  sysctl net.core.somaxconn=511"
+        return 0
+    fi
+    
+    # 1. 启用内存超额分配
+    show_info "配置内存超额分配..."
+    if ! grep -q "vm.overcommit_memory" /etc/sysctl.conf 2>/dev/null; then
+        echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf
+        sysctl vm.overcommit_memory=1
+        show_success "内存超额分配已启用"
+    else
+        show_info "内存超额分配已配置，跳过"
+    fi
+    
+    # 2. 增加 TCP backlog
+    show_info "配置 TCP backlog..."
+    if ! grep -q "net.core.somaxconn" /etc/sysctl.conf 2>/dev/null; then
+        echo "net.core.somaxconn = 511" >> /etc/sysctl.conf
+        sysctl net.core.somaxconn=511
+        show_success "TCP backlog 已优化"
+    else
+        show_info "TCP backlog 已配置，跳过"
+    fi
+    
+    # 3. 禁用透明大页（可选，提升性能）
+    show_info "禁用透明大页..."
+    if [ -f /sys/kernel/mm/transparent_hugepage/enabled ]; then
+        echo never > /sys/kernel/mm/transparent_hugepage/enabled
+        show_success "透明大页已禁用"
+    fi
+    
+    show_success "Redis 系统优化完成"
     echo ""
 }
 
@@ -1128,7 +1174,7 @@ show_help() {
     echo "  --redis-image <镜像>     指定 Redis 镜像（配合 --pull 使用）"
     echo "                          默认: redis:8.4.0"
     echo "  --nginx-image <镜像>     指定 Nginx 镜像（配合 --pull 使用）"
-    echo "                          默认: nginx:alpine"
+    echo "                          默认: nginx:stable"
     echo "  --secsnow-image <镜像>   指定 SecSnow 镜像（配合 --pull 使用，必需）"
     echo "  yes/no                  是否创建管理员账户（默认: yes）"
     echo ""
@@ -1284,6 +1330,7 @@ main() {
     fi
     
     generate_env
+    optimize_redis_system
     start_services
     run_migrations
     create_admin_user
