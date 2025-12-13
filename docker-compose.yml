@@ -60,10 +60,11 @@ services:
     networks:
       - secsnow-network
     healthcheck:
-      test: ["CMD-SHELL", "psql -h 127.0.0.1 -p 5432 -U ${POSTGRES_USER:-secsnow} -d ${POSTGRES_DB:-secsnow} -c 'SELECT 1;' || exit 1"]
+      test: ["CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD:-secsnow123456} psql -h 127.0.0.1 -p 5432 -U ${POSTGRES_USER:-secsnow} -d ${POSTGRES_DB:-secsnow} -c 'SELECT 1;' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   # Redis 缓存和消息队列
   redis:
