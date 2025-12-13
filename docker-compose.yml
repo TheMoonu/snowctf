@@ -38,6 +38,30 @@ services:
       timeout: 5s
       retries: 5
 
+  # PgBouncer 连接池
+  pgbouncer:
+    image: ${PGBOUNCER_IMAGE:-edoburu/pgbouncer:latest}
+    container_name: ${CONTAINER_PREFIX:-secsnow}-pgbouncer
+    restart: always
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-secsnow}:${POSTGRES_PASSWORD:-secsnow123456}@postgres:5432/${POSTGRES_DB:-secsnow}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 25
+      RESERVE_POOL_SIZE: 5
+      SERVER_IDLE_TIMEOUT: 60
+      TZ: Asia/Shanghai
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - secsnow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-p", "5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Redis 缓存和消息队列
   redis:
     image: ${REDIS_IMAGE:-redis:8.4.0}
@@ -69,8 +93,8 @@ services:
       SNOW_SECRET_KEY: ${SNOW_SECRET_KEY:-django-insecure-)+vh#@l4crslu5fza1e8da!2(0s10mw5%_1=*uko7cu9ju*yv-}
       SNOW_DEBUG: ${SNOW_DEBUG:-False}
       SNOW_ALLOWED_HOSTS: ${SNOW_ALLOWED_HOSTS:-*}
-      # 数据库配置（使用 SNOW_ 前缀）
-      SNOW_POSTGRES_HOST: postgres
+      # 数据库配置（使用 SNOW_ 前缀）- 通过 PgBouncer 连接
+      SNOW_POSTGRES_HOST: pgbouncer
       SNOW_POSTGRES_PORT: 5432
       SNOW_POSTGRES_NAME: ${POSTGRES_DB:-secsnow}
       SNOW_POSTGRES_USER: ${POSTGRES_USER:-secsnow}
@@ -95,6 +119,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      pgbouncer:
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -117,8 +143,8 @@ services:
       # Django 配置（使用 SNOW_ 前缀）
       SNOW_SECRET_KEY: ${SNOW_SECRET_KEY:-change-this-to-random-string}
       SNOW_DEBUG: ${SNOW_DEBUG:-False}
-      # 数据库配置（使用 SNOW_ 前缀）
-      SNOW_POSTGRES_HOST: postgres
+      # 数据库配置（使用 SNOW_ 前缀）- 通过 PgBouncer 连接
+      SNOW_POSTGRES_HOST: pgbouncer
       SNOW_POSTGRES_PORT: 5432
       SNOW_POSTGRES_NAME: ${POSTGRES_DB:-secsnow}
       SNOW_POSTGRES_USER: ${POSTGRES_USER:-secsnow}
@@ -138,6 +164,8 @@ services:
       - /sys/class/net:/host/sys/class/net:ro
     depends_on:
       postgres:
+        condition: service_healthy
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -163,8 +191,8 @@ services:
       # Django 配置（使用 SNOW_ 前缀）
       SNOW_SECRET_KEY: ${SNOW_SECRET_KEY:-change-this-to-random-string}
       SNOW_DEBUG: ${SNOW_DEBUG:-False}
-      # 数据库配置（使用 SNOW_ 前缀）
-      SNOW_POSTGRES_HOST: postgres
+      # 数据库配置（使用 SNOW_ 前缀）- 通过 PgBouncer 连接
+      SNOW_POSTGRES_HOST: pgbouncer
       SNOW_POSTGRES_PORT: 5432
       SNOW_POSTGRES_NAME: ${POSTGRES_DB:-secsnow}
       SNOW_POSTGRES_USER: ${POSTGRES_USER:-secsnow}
@@ -183,6 +211,8 @@ services:
       - /sys/class/net:/host/sys/class/net:ro
     depends_on:
       postgres:
+        condition: service_healthy
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy

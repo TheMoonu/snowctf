@@ -697,9 +697,6 @@ SNOW_ALLOWED_HOSTS=*
 # CSRF信任来源（多个用逗号分隔，* 表示允许所有）
 #SNOW_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
 
-# 机器码（用于授权绑定，留空则自动生成）
-SNOW_MACHINE_CODE=
-
 # 协议配置（http 或 https）
 SNOW_PROTOCOL_HTTPS=http
 
