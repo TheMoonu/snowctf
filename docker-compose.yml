@@ -25,6 +25,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-secsnow}
       POSTGRES_USER: ${POSTGRES_USER:-secsnow}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secsnow123456}
+      POSTGRES_INITDB_ARGS: --auth-host=md5
       PGDATA: /var/lib/postgresql/data/pgdata
       TZ: Asia/Shanghai
     volumes:
@@ -45,6 +46,7 @@ services:
     restart: always
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-secsnow}:${POSTGRES_PASSWORD:-secsnow123456}@postgres:5432/${POSTGRES_DB:-secsnow}
+      AUTH_TYPE: scram-sha-256
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 1000
       DEFAULT_POOL_SIZE: 25
